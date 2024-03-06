@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block dinamico %}
+<form action="{{ url_for('ciudad.update_ciudad') }}" method="post">
+  <div class="card">
+    <div class="card-header">Editar ciudad</div>
+    <div class="card-body">
+      <input type="hidden" name="idtxtciudad" value="{{ ciudad['id'] }}">
+      <input type="text" name="txtciudad" class="form-control" value="{{ ciudad['descripcion'] }}" required>
+    </div>
+    <div class="card-footer">
+      <button type="submit" class="btn btn-primary">Actualizar</button>
+    </div>
+  </div>
+</form>
+{% endblock %}

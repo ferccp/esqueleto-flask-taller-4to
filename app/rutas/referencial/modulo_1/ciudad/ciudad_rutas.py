@@ -20,7 +20,8 @@ def index_ciudad():
 
 @ciumod.route('/agregar-ciudad')
 def agregar_ciudad():
-    return render_template('vistas_ciudades/agregar-ciudad.html')
+    return render_template('agregar-ciudad.html')
+
 
 @ciumod.route('/save-ciudad', methods=['POST'])
 def save_ciudad():
@@ -30,17 +31,17 @@ def save_ciudad():
     if txtciudad != None and len(txtciudad.strip()) > 0:
         isSaved = cdao.insertCiudad(txtciudad.strip().upper())
     if isSaved:
-        return redirect(url_for('index_ciudad'))
+        return redirect(url_for('ciudad.index_ciudad'))
     else:
-        return redirect(url_for('agregar_ciudad'))
+        return redirect(url_for('ciudad.agregar_ciudad'))
 
 @ciumod.route('/editar-ciudad/<id>')
 def editar_ciudad(id):
     cdao = CiudadDao()
     ciudadFound = cdao.getCiudadById(id)
     if ciudadFound:
-        return render_template('vistas_ciudades/editar-ciudad.html', ciudad=ciudadFound)
-    return redirect(url_for('index_ciudad'))
+        return render_template('editar-ciudad.html', ciudad=ciudadFound)
+    return redirect(url_for('ciudad.index_ciudad'))
 
 @ciumod.route('/update-ciudad', methods=['POST'])
 def update_ciudad():
@@ -54,15 +55,15 @@ def update_ciudad():
     if txtciudad != None and len(txtciudad.strip()) > 0:
         isUpdated = cdao.updateCiudad(idtxtciudad.strip(), txtciudad.strip().upper())
     if isUpdated:
-        return redirect(url_for('index_ciudad'))
+        return redirect(url_for('ciudad.index_ciudad'))
     else:
-        return redirect(url_for('editar_ciudad', id=idtxtciudad))
+        return redirect(url_for('ciudad.editar_ciudad', id=idtxtciudad))
 
 @ciumod.route('/delete-ciudad/<id>')
 def delete_ciudad(id):
     cdao = CiudadDao()
     cdao.deleteCiudad(id)
-    return redirect(url_for('index_ciudad'))
+    return redirect(url_for('ciudad.index_ciudad'))
 
 # REST
 @ciumod.route('/get-ciudad')
