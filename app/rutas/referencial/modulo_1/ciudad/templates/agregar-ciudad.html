@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from 'macros.html' import pintar_alerta %}
 
 {% block dinamico %}
 <form action="{{ url_for('ciudad.save_ciudad') }}" method="post">
@@ -12,4 +13,6 @@
     </div>
   </div>
 </form>
+{{ pintar_alerta(messages) }}
+
 {% endblock %}

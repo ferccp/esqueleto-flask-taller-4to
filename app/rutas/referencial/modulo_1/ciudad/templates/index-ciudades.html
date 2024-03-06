@@ -1,4 +1,6 @@
 {% extends "base.html" %}
+{% from 'macros.html' import pintar_alerta %}
+
 
 {% block dinamico %}
 {% if ciudades|length > 0 %}
@@ -21,13 +23,14 @@
               <th scope="row">{{ ciudad['id'] }}</th>
               <td>{{ ciudad['descripcion']}}</td>
               <td>
-                <a href="{{ url_for('ciudad.editar_ciudad', id=ciudad['id']) }}" class="btn btn-primary">Editar</a>
-                <a href="{{ url_for('ciudad.delete_ciudad', id=ciudad['id']) }}" class="btn btn-warning">Eliminar</a>
+                <a  name="btn_editar" data-id="{{ ciudad['id'] }}" class="btn btn-primary" >Editar</a>
+                <a name="btn_eliminar" data-id="{{ ciudad['id'] }}" class="btn btn-warning">Eliminar</a>
               </td>
             </tr>
             {% endfor %}
           </tbody>
         </table>
+        {{ pintar_alerta(messages) }}
       </div>
     </div>
     {% else %}
@@ -40,6 +43,28 @@
 
 {% block mi_javascript %}
 <script>
-  $('#tbl').DataTable();
+  
+  $(function(){
+    $('#tbl').DataTable();
+    $('a[name=btn_editar]').on('click', function(e){
+      e.preventDefault(); 
+      console.log("hiciste clic, el id es " + $(this).data("id"));
+      const id = $(this).data("id");
+      if(confirm("¡Desea editar este item?")) {
+        location.href = `/referencial/ciudad/editar-ciudad/${id}`;
+      }
+
+    });
+    $('a[name=btn_eliminar]').on('click', function(e){
+      e.preventDefault(); 
+      console.log("hiciste clic, el id es " + $(this).data("id"));
+      const id = $(this).data("id");
+      if(confirm("¡Desea eliminar este item?")) {
+        location.href = `/referencial/ciudad/delete-ciudad/${id}`;
+      }
+    });
+
+
+  });
 </script>
 {% endblock %}
