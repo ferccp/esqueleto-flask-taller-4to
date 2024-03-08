@@ -1,0 +1,36 @@
+{% extends 'base.html' %} {# extens es para heredar plantilla base.html #}
+{% from 'macros.html' import pintar_alerta %} {# from importar pintar_alerta de macros.html #}
+
+{% block dinamico %}
+<div class="card">
+  <div class="card-header">
+    <a href="{{ url_for('tipoinsumomod.agregar_tipo_insumo') }}" class="btn btn-primary">Agregar Tipo Insumo</a>
+  </div>
+  <div class="card-body">
+    <table class="table" id="tbl">
+        <thead>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Descripcion</th>
+            <th scope="col">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+            {% for tipo_insumo in lista_tipo_insumo %}
+            <tr>
+              <th scope="row">{{ tipo_insumo['id'] }}</th>
+              <td>{{ tipo_insumo['descripcion']}}</td>
+              <td>
+                <a  name="btn_editar" data-id="{{ tipo_insumo['id'] }}" class="btn btn-primary" >Editar</a>
+                <a name="btn_eliminar" data-id="{{ tipo_insumo['id'] }}" class="btn btn-warning">Eliminar</a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {{ pintar_alerta(messages) }}
+      </div>
+    </div>
+
+{% endblock %}
+

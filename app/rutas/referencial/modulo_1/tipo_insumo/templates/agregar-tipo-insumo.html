@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% from 'macros.html' import pintar_alerta %}
+
+{% block dinamico %}
+
+<form action="{{ url_for('tipoinsumomod.save_tipo_insumo') }}" method="post">
+  <div class="card">
+    <div class="card-header">Agregar ciudad</div>
+    <div class="card-body">
+      <input type="text" name="txttipoinsumo" class="form-control" required>
+    </div>
+    <div class="card-footer">
+      <button type="submit" class="btn btn-primary">Guardar</button>
+    </div>
+  </div>
+</form>
+
+{{ pintar_alerta(messages) }}
+
+{% endblock %}
