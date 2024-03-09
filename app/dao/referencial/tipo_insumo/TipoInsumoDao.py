@@ -34,9 +34,49 @@ class TipoInsumoDao:
 					cur.close()
 					conn.close()
 				return False
+		
+
+		def getTipoInsumoById(self, id):
+			tipoInsumoSQL = """
+            SELECT id, descripcion
+			FROM public.tipo_insumos WHERE id = %s """
+			conexion = Conexion()
+			con = conexion.getConexion()
+			cur = con.cursor()
+			try:    
+				cur.execute(tipoInsumoSQL, (id,))
+				tipoinsumo = cur.fetchone()
+				if tipoinsumo:
+					return { 'id': tipoinsumo[0], 'descripcion': tipoinsumo[1]}
+			except con.Error as e:
+					print(f"pgcode = {e.pgcode} , mensaje = {e.pgerror}")
+			finally:
+				cur.close()
+				con.close()
+			return None
+
+
 
 		
-		            
+		def updateTipoInsumo(self, id, descripcion):
+				updateSQL = """
+				update tipo_insumos set descripcion = %s where id = %s
+				"""
+				conexion = Conexion()
+				conn = conexion.getConexion()
+				cur = conn.cursor()
+				try:
+					cur.execute(updateSQL, (descripcion,id,))
+					conn.commit()
+					return True
+				except conn.Error as e:
+					print(f"pgcode = {e.pgcode} , mensaje = {e.pgerror}")
+				finally:
+					cur.close()
+					conn.close()
+				return False
+		
+  
 
 
 

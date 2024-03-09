@@ -33,4 +33,32 @@
     </div>
 
 {% endblock %}
+{% block mi_javascript %}
 
+<script>
+
+  $(function(){
+    $('#tbl').DataTable();
+    $('a[name=btn_editar]').on('click', function(e){
+      e.preventDefault(); 
+      console.log("hiciste clic, el id es " + $(this).data("id"));
+      const id = $(this).data("id");
+      if(confirm("¡Desea editar este item?")) {
+        location.href = `/referencial/tipo-insumo/editar-tipo-insumo/${id}`;
+      }
+
+    });
+    $('a[name=btn_eliminar]').on('click', function(e){
+      e.preventDefault(); 
+      console.log("hiciste clic, el id es " + $(this).data("id"));
+      const id = $(this).data("id");
+      if(confirm("¡Desea eliminar este item?")) {
+        location.href = `/referencial/ciudad/delete-ciudad/${id}`;
+      }
+    });
+
+
+  });
+  
+</script>
+{% endblock %}
