@@ -58,6 +58,17 @@ def update_tipo_insumo():
                 flash('Ocurrio un error al editar comunicarse con el  admin','warning')
                 return redirect(url_for('tipoinsumomod.editar_tipo_insumo',id=id))            
 
+@tipoinsumomod.route('/delete-tipo-insumo/<id>')
+def delete_tipo_insumo(id):
+        isDelete = tpdao.deleteTipoInsumo(id)
+        if isDelete:
+                flash('Registro eliminado','sucess')
+                return redirect(url_for('tipoinsumomod.index_tipo_insumo'))
+        else:
+                flash('error no se pudo eliminar','warning')
+                return redirect(url_for('tipoinsumomod.index_tipo_insumo'))
+
+
 
 
 

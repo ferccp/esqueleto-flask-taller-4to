@@ -77,6 +77,26 @@ class TipoInsumoDao:
 				return False
 		
   
+		def deleteTipoInsumo(self, id):
+				deleteSQL = """
+				delete from tipo_insumos  where id = %s
+				"""
+				conexion = Conexion()
+				conn = conexion.getConexion()
+				cur = conn.cursor()
+				try:
+					cur.execute(deleteSQL, (id,))
+					conn.commit()
+					return True
+				except conn.Error as e:
+					print(f"pgcode = {e.pgcode} , mensaje = {e.pgerror}")
+				finally:
+					cur.close()
+					conn.close()
+				return False
+		
+  
+
 
 
 
