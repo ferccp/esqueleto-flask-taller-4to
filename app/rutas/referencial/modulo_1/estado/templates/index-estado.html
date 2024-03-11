@@ -1,0 +1,66 @@
+{% extends 'base.html'%}
+{% from 'macros.html' import pintar_alerta %}
+
+{% block dinamico %}
+
+<div class="card">
+  <div class="card-header">
+    <a href="{{ url_for('estadomod.agregar_estado') }}" class="btn btn-primary">Agregar</a>
+  </div>
+  <div class="card-body">
+    <table class="table" id="tbl">
+        <thead>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Descripcion</th>
+            <th scope="col">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+            {% for lista_esta in lista_estado %}
+            <tr>
+              <th scope="row">{{ lista_esta['id'] }}</th>
+              <td>{{ lista_esta['descripcion']}}</td>
+              <td>
+                <a  name="btn_editar" data-id="{{ lista_esta['id'] }}" class="btn btn-primary" >Editar</a>
+                <a name="btn_eliminar" data-id="{{ lista_esta['id'] }}" class="btn btn-warning">Eliminar</a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {{ pintar_alerta(messages) }}
+      </div>
+    </div>
+
+{% endblock %}
+{% block mi_javascript %}
+
+<script>
+
+  $(function(){
+    $('#tbl').DataTable();
+    $('a[name=btn_editar]').on('click', function(e){
+      e.preventDefault(); 
+      console.log("hiciste clic, el id es " + $(this).data("id"));
+      const id = $(this).data("id");
+      if(confirm("¡Desea editar este item?")) {
+        location.href = `/referencial/estado/editar-estado/${id}`;
+      }
+
+    });
+    $('a[name=btn_eliminar]').on('click', function(e){
+      e.preventDefault(); 
+      console.log("hiciste clic, el id es " + $(this).data("id"));
+      const id = $(this).data("id");
+      if(confirm("¡Desea eliminar este item?")) {
+        location.href = `/referencial/estado/delete-estado/${id}`;
+      }
+    });
+
+
+  });
+  
+</script>
+{% endblock %}
+

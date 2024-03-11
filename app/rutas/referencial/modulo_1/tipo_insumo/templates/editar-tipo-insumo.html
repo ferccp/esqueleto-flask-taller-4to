@@ -4,7 +4,7 @@
 {% block dinamico %}
 <form action="{{ url_for('tipoinsumomod.update_tipo_insumo') }}" method="post">
   <div class="card">
-    <div class="card-header">Editar ciudad</div>
+    <div class="card-header">Editar Tipo Insumo</div>
     <div class="card-body">
       <input type="hidden" name="idtxttipoinsumo" value="{{ tipoinsumoencontrado['id'] }}">
       <input type="text" name="txttipoinsumo" class="form-control" value="{{ tipoinsumoencontrado['descripcion'] }}" required>

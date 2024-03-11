@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% from 'macros.html' import pintar_alerta %}
+
+{% block dinamico %}
+<form action="{{ url_for('estadomod.update_estado') }}" method="post">
+  <div class="card">
+    <div class="card-header">Editar Estado</div>
+    <div class="card-body">
+      <input type="hidden" name="idtxtestado" value="{{ estadoecontrado['id'] }}">
+      <input type="text" name="txttdescripcion" class="form-control" value="{{ estadoecontrado['descripcion'] }}" required>
+    </div>
+    <div class="card-footer">
+      <button type="submit" class="btn btn-primary">Actualizar</button>
+    </div>
+  </div>
+</form>
+{{ pintar_alerta(messages) }}
+
+{% endblock %}
