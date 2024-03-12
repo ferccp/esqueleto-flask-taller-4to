@@ -9,7 +9,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>SB Admin 2 - Dashboard</title>
+    <title>{% block titulo_pagina  %} {% endblock %}</title>
 
     <!-- Custom fonts for this template-->
     
@@ -24,6 +24,9 @@
     <link href="{{ url_for('static', filename='vendor/sweetalert/minimal.css') }}" rel="stylesheet">
 
     <link rel="stylesheet" href="{{ url_for('static', filename='vendor/datatables1.13.8/dataTables.bootstrap5.min.css') }}">
+
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='vendor/select2/select2.min.css') }}">
 
     {% block mi_css %}
     {% endblock %}
@@ -480,6 +483,7 @@
 
     <script src="{{ url_for('static', filename='vendor/datatables1.13.8/dataTables.bootstrap5.min.js') }}"></script>
 
+    <script src="{{ url_for('static', filename='vendor/select2/select2.min.js') }}"></script>
     {% block mi_javascript %}
     {% endblock %}
 

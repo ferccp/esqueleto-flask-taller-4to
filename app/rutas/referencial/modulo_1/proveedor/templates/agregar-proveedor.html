@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% from 'macros.html' import pintar_alerta %}
+
+{% block titulo_pagina %} Proveedores {% endblock %}
+{% block dinamico %}
+
+  <div class="card">
+    <div class="card-header">Proveedores</div>
+    <div class="card-body">
+        <!-- RUC y ID -->
+        <div class="row g-3">
+            <div class="col col-md-1">
+                <label for="txtruc" class="visually-hidden">RUC</label>
+            </div>
+            <div class="col col-md-3">
+              <input type="text" class="form-control" name="txtruc">
+            </div>
+            <div class="col col-md-1">
+                <label for="inputPassword2" class="visually-hidden">ID</label>
+            </div>
+            <div class="col col-md-1">
+              <input type="text" class="form-control" name="txtid">
+            </div>
+        </div>
+        <!--  -->
+        <!-- razon social y direccion -->
+        <div class="row g-3 pt-4">
+           <div class="col col-md-1">
+               <label for="txtruc" class="visually-hidden">Nombre o Razón Social</label>
+           </div>
+           <div class="col col-md-3">
+             <input type="text" class="form-control" name="txtrazon">
+           </div>
+           <div class="col col-md-1">
+               <label for="inputPassword2" class="visually-hidden">Dirección</label>
+           </div>
+           <div class="col col-md-4">
+             <input type="text" class="form-control" name="txtdirección">
+           </div>
+        </div>
+        <!--  -->
+        <!-- Apellido y Email -->
+        <div class="row g-3 pt-4">
+            <div class="col col-md-1">
+                <label for="txtapellido" class="visually-hidden">Apellido</label>
+            </div>
+            <div class="col col-md-3">
+              <input type="text" class="form-control" name="txtapellido">
+            </div>
+            <div class="col col-md-1">
+                <label for="txtemail" class="visually-hidden">Email</label>
+            </div>
+            <div class="col col-md-3">
+              <input type="text" class="form-control" name="txtemail">
+            </div>
+         </div>
+         <!--  -->
+         <!-- telefono -->
+        <div class="row g-3 pt-4">
+            <div class="col col-md-1">
+                <label for="txttelefono" class="visually-hidden">Teléfono</label>
+            </div>
+            <div class="col col-md-3">
+              <input type="text" class="form-control" name="txttelefono">
+            </div>
+        </div>
+        <!--  -->
+        <!-- pais y su combo -->
+        <div class="row g-3 pt-4">
+            <div class="col col-md-1">
+                <label for="txtidpais" class="visually-hidden">País</label>
+            </div>
+            <div class="col col-md-1">
+              <input type="text" class="form-control" name="txtidpais">
+            </div>
+            <div class="col col-md-3">
+                <select class="form-control"  name = "slpais">
+                        <option selected>...</option>
+                        {% if lista_paises|length > 0%}
+                                {% for pais in lista_paises %}
+                                <option value="{{ pais['id'] }}">{{ pais['descripcion'] }}</option>
+                                {% endfor %}
+                        {% endif %}
+                      </select>
+            </div>
+        </div>
+        <!--  -->
+        <!-- ciudad y su combo -->
+        <div class="row g-3 pt-4">
+            <div class="col col-md-1">
+                <label for="txtidciudad" class="visually-hidden">Ciudad</label>
+            </div>
+            <div class="col col-md-1">
+              <input type="text" class="form-control" name="txtidciudad">
+            </div>
+            <div class="col col-md-3">
+             
+        </div>
+        <!--  -->
+    </div>
+    <div class="card-footer">
+      <button type="submit" class="btn btn-primary">Guardar</button>
+    </div>
+  </div>
+
+{{ pintar_alerta(messages) }}
+{% endblock %}
+
+
+
+{% block mi_javascript %}
+<script>
+  $(function(){
+        $('select[name="slpais"]').select2({
+        });
+  })
+
+  </script>
+{% endblock %}
