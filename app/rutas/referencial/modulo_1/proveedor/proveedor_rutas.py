@@ -10,8 +10,8 @@ def index_proveedor():
 @proveedormod.route('/agregar-proveedor')
 def agregar_proveedor():
         pdao = PaisDao()
-        lista_paises = [{'id':item[0], 'descripcion':item[1]} for item in pdao.getPaises()]
-        return render_template('agregar-proveedor.html', lista_paises =lista_paises if lista_paises else [])
+        lista_paises = [{'id':item[0], 'descripcion':item[1]} for item in pdao.getPaisesConCiudad()]
+        return render_template('agregar-proveedor.html', lista_paises = lista_paises if lista_paises else [])
 
 
         
