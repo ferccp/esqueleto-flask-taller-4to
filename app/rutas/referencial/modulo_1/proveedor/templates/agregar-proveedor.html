@@ -4,7 +4,7 @@
 {% block titulo_pagina %} Proveedores {% endblock %}
 {% block dinamico %}
 
-<form action="" method="post" id="frm" >
+<form action="{{ url_for('proveedormod.save_proveedor')}}" method="post" id="frm" >
 
   <div class="card">
     <div class="card-header">Proveedores</div>

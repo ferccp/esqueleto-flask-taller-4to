@@ -1,7 +1,9 @@
 from flask import Blueprint, render_template, request,redirect , url_for, jsonify, flash
 from app.dao.referencial.pais.PaisDao import PaisDao
+from app.dao.referencial.proveedor.ProveedorDao import ProveedorDao, ProveedorDto
 
 proveedormod = Blueprint('proveedormod', __name__, template_folder='templates')
+provdao = ProveedorDao()
 
 @proveedormod.route('/index-proveedor')
 def index_proveedor():
@@ -16,8 +18,39 @@ def agregar_proveedor():
 
         
      
-        """
+    
 @proveedormod.route('/save-proveedor', methods=['POST'])
 def save_proveedor():
-        pass
-           """
+        """
+        {
+                "selciudad": "9",
+                "selpais": "1",
+                "txtapellido": "lopez ",
+                "txtdirección": "tieniente bauza",
+                "txtemail": "sanjose@gmail.com",
+                "txtid": "8",
+                "txtrazon": "san jose",
+                "txtruc": "5370697",
+                "txttelefono": "58565"
+                }
+        """
+        
+        ruc = request.form['txtruc']
+        identificador_ruc = request.form['txtid']
+        razon = request.form['txtrazon']
+        apellido = request.form['txtapellido']
+        direccion = request.form['txtdirección']
+        email = request.form['txtemail']
+        telefono = request.form['txttelefono']
+        id_ciudad = request.form['selciudad']
+        usuario_actual = 1
+        dto = ProveedorDto(None,ruc,identificador_ruc,razon,apellido,direccion,email,telefono,id_ciudad,usuario_actual)
+        isSave = False
+        if dto.ruc and dto.identificador_ruc and dto.razon and dto.apellido and dto.direccion and dto.email and dto.telefono and dto.id_ciudad:
+                provdao.insertProveedor(dto)
+        if isSave:
+                flash('Guardado exitoso', 'success')
+                return redirect(url_for('proveedormod.index_proveedor'))
+        else:
+                flash('Error al guardar, consultar al admin', 'warning')
+                return redirect(url_for('proveedormod.agregar_proveedor'))               
