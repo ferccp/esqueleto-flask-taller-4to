@@ -21,20 +21,6 @@ def agregar_proveedor():
     
 @proveedormod.route('/save-proveedor', methods=['POST'])
 def save_proveedor():
-        """
-        {
-                "selciudad": "9",
-                "selpais": "1",
-                "txtapellido": "lopez ",
-                "txtdirección": "tieniente bauza",
-                "txtemail": "sanjose@gmail.com",
-                "txtid": "8",
-                "txtrazon": "san jose",
-                "txtruc": "5370697",
-                "txttelefono": "58565"
-                }
-        """
-        
         ruc = request.form['txtruc']
         identificador_ruc = request.form['txtid']
         razon = request.form['txtrazon']
@@ -47,7 +33,7 @@ def save_proveedor():
         dto = ProveedorDto(None,ruc,identificador_ruc,razon,apellido,direccion,email,telefono,id_ciudad,usuario_actual)
         isSave = False
         if dto.ruc and dto.identificador_ruc and dto.razon and dto.apellido and dto.direccion and dto.email and dto.telefono and dto.id_ciudad:
-                provdao.insertProveedor(dto)
+               isSave = provdao.insertProveedor(dto)
         if isSave:
                 flash('Guardado exitoso', 'success')
                 return redirect(url_for('proveedormod.index_proveedor'))
