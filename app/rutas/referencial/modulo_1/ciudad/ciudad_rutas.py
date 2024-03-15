@@ -96,6 +96,4 @@ def getCiudad():
 def get_ciudad_by_idpais(id):
     cdao = CiudadDao()
     lista = cdao.getCiudadByIdPais(id)
-    return jsonify({'results':[{'id':item['id'], 'text': item['descripcion']} for item in lista]}), 200 if lista else 404
-
-
+    return jsonify([{'id':item['id'], 'text': item['descripcion']} for item in lista]), 200 if lista else 404
