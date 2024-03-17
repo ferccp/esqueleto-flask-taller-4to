@@ -1,0 +1,262 @@
+{% extends "base.html" %}
+{% from 'macros.html' import pintar_alerta %}
+
+{% block titulo_pagina %} Proveedores {% endblock %}
+{% block dinamico %}
+
+
+
+  <div class="card">
+    <div class="card-header">Proveedores</div>
+    <div class="card-body">
+        <!-- RUC y Identificador del RUC -->
+        <input type="hidden" id="id_proveedor">
+        <div class="row g-3">
+
+            <div class="col col-md-1">
+                <label for="txtruc" class="visually-hidden">RUC</label>
+            </div>
+            <div class="col col-md-3">
+              <input type="text" class="form-control" id="txtruc" value="{{ provdto.ruc}}" name="txtruc" required>
+            </div>
+            <div class="col col-md-1">
+                <label for="inputPassword2" class="visually-hidden">Identificador del RUC</label>
+            </div>
+            <div class="col col-md-1">
+              <input type="text" class="form-control" id="txtid" name="txtid" value="{{ provdto.identificador_ruc}}" autocomplete="off" required>
+            </div>
+        </div>
+        <!--  -->
+        <!-- razon social y direccion -->
+        <div class="row g-3 pt-4">
+           <div class="col col-md-1">
+               <label for="txtruc" class="visually-hidden">Nombre o Razón Social</label>
+           </div>
+
+           <div class="col col-md-3">
+             <input type="text" class="form-control" id="txtrazon" value="{{ provdto.razon}}" name="txtrazon" required >
+
+           </div>
+           <div class="col col-md-1">
+               <label for="inputPassword2" class="visually-hidden">Dirección</label>
+           </div>
+           <div class="col col-md-4">
+             <input type="text" class="form-control" id="txtdireccion" value="{{ provdto.direccion}}" name="txtdireccion" autocomplete="off" required >
+
+           </div>
+        </div>
+        <!--  -->
+        <!-- Apellido y Email -->
+        <div class="row g-3 pt-4">
+            <div class="col col-md-1">
+                <label for="txtapellido" class="visually-hidden" >Apellido</label>
+            </div>
+            <div class="col col-md-3">
+              <input type="text" class="form-control" id="txtapellido"   value="{{ provdto.apellido}}" name="txtapellido" autocomplete="off" required>
+
+            </div>
+            <div class="col col-md-1">
+                <label for="txtemail" class="visually-hidden">Email</label>
+            </div>
+            <div class="col col-md-3">
+              <input type="text" class="form-control"  id="txtemail" name="txtemail" value="{{ provdto.email}}" autocomplete="off" required>
+
+            </div>
+         </div>
+         <!--  -->
+         <!-- telefono -->
+        <div class="row g-3 pt-4">
+            <div class="col col-md-1">
+                <label for="txttelefono" class="visually-hidden">Teléfono</label>
+            </div>
+            <div class="col col-md-3">
+              <input type="text" class="form-control" id="txttelefono"  value="{{ provdto.telefono}}"  name="txttelefono" autocomplete="off" required>
+
+            </div>
+        </div>
+        <!--  -->
+        <!-- pais y su combo -->
+        <div class="row g-3 pt-4">
+            <div class="col col-md-1">
+                <label for="txtidpais" class="visually-hidden">País</label>
+            </div>
+            <div class="col col-md-3">
+                <select class="form-control"  name = "selpais">
+                        <option selected>...</option>
+                        {% if lista_paises|length > 0%}
+                                {% for pais in lista_paises %}
+                                {% if provdto.id_pais == pais['id'] %}
+                                <option value="{{ pais['id'] }}" selected >{{ pais['descripcion'] }}</option>
+                                {% else %}
+                                <option value="{{ pais['id'] }}">{{ pais['descripcion'] }}</option>
+                                {% endif%}
+                                {% endfor %}
+                        {% endif %}
+                      </select>
+
+            </div>
+        </div>
+        <!--  -->
+        <!-- ciudad y su combo -->
+        <div class="row g-3 pt-4">
+            <div class="col col-md-1">
+                <label for="txtidciudad" class="visually-hidden">Ciudad</label>
+            </div>
+            <div class="col col-md-3">
+              <select class="form-control" name="selciudad"></select>
+            </div>
+             
+        </div>
+        <!--  -->
+    </div>
+    <div class="card-footer">
+      <button type="button" class="btn btn-primary" id="btnactualizar">Actualizar</button>
+      <button type="button" class="btn btn-info" id="btnlimpiar">Limpiar Formulario</button>
+
+    </div>
+  </div>
+
+{{ pintar_alerta(messages) }}
+{% endblock %}
+
+
+
+{% block mi_javascript %}
+<script>
+
+  // proviene del servidor
+  const data_from_server = {
+    id_proveedor: "{{ provdto.id}}",
+    id_ciudad: "{{ provdto.id_ciudad }}",
+    id_pais: "{{ provdto.id_pais }}",
+    url_index: "{{ url_for('proveedormod.index_proveedor') }}",
+    url_update: "{{ url_for('proveedormod.update_proveedor') }}"
+   
+  }
+
+  const extra_settings_select2 = {
+    placeholder: "...",
+    theme: 'bootstrap-5'
+  }
+
+const getCiudadesByPaisUrl = (id) => `/referencial/ciudad/get-ciudad-by-idpais/${id}`;
+  const addEvents = () => {
+    $('select[name="selpais"], select[name="selciudad"]').select2(extra_settings_select2);
+    $('select[name="selpais"').on('change', function(e) {
+      const idpais =$(this).val();
+      if(idpais) {
+        fetch(getCiudadesByPaisUrl(idpais)).then(resp => resp.json()).then(paises => {
+          //debugger;
+          extra_settings_select2.data = paises;
+          $('select[name="selciudad"]').empty();
+          $('select[name="selciudad"]').select2(extra_settings_select2);
+          if(data_from_server.id_ciudad){
+            $('select[name=selciudad]').val(data_from_server.id_ciudad).trigger("change");
+
+          }
+
+        });
+      }
+    });
+    $('#btnactualizar').on('click', function(){
+      if(!validarFormulario()){
+        alert('Favor Verifique su formulario');
+        return;
+      }
+      const payload = {
+        "txtruc": $('#txtruc').val(),
+        "txtid": $('#txtid').val(),
+        "txtrazon": $('#txtrazon').val(),
+        "txtapellido": $('#txtapellido').val(),
+        "txtdireccion": $('#txtdireccion').val(),
+        "txtemail": $('#txtemail').val(),
+        "txttelefono": $('#txttelefono').val(),
+        "selciudad":  $('select[name="selciudad"]').val(),
+        "id_proveedor": data_from_server.id_proveedor
+      }
+
+   
+
+        fetch(data_from_server.url_update, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+          ,body: JSON.stringify(payload)
+        })
+        .then(resp => resp.json() )
+        .then(data => {
+          if(data && !data.error && data.success){
+            alert(data.success);
+            location.replace(data_from_server.url_index);
+          } else {
+            alert(data.error)
+          }
+        })
+        //cuando la promesa falla
+        .catch(err => {
+          alert(err);
+        })
+
+    });
+  }
+ 
+ 
+ const validarFormulario = () => {
+
+     const ruc = $('#txtruc').val();
+     const identificador_ruc = $('#txtid').val();
+     const razon = $('#txtrazon').val();
+     const direccion = $('#txtdireccion').val();
+     const apellido = $('#txtapellido').val();
+     const email = $('#txtemail').val();
+     const telefono = $('#txttelefono').val();
+     const idpais = $('select[name=selpais]').val();
+     const idciudad = $('select[name=selciudad]').val();
+
+    let arrayMensaje = [];
+
+    if(!ruc) {
+      arrayMensaje.push("El ruc no debe estar vacio")
+    }
+    if(!identificador_ruc) {
+      arrayMensaje.push("El identificador_ruc no debe estar vacio")
+    }
+    if(!razon) {
+      arrayMensaje.push("El razon no debe estar vacio")
+    }
+    if(!direccion) {
+      arrayMensaje.push("El direccion no debe estar vacio")
+    }
+    if(!apellido) {
+      arrayMensaje.push("El apellido no debe estar vacio")
+    }
+    if(!email) {
+      arrayMensaje.push("El email no debe estar vacio")
+    }
+    if(!idpais) {
+      arrayMensaje.push("El idpais no debe estar vacio")
+    }
+    if(!idciudad) {
+      arrayMensaje.push("El idciudad no debe estar vacio")
+    }
+    if(arrayMensaje.length > 0){
+      alert(arrayMensaje.join());
+      return false;
+    }
+    return true;
+
+ }
+ 
+ 
+  //main function
+  $(function(){
+    addEvents();
+    if(data_from_server.id_ciudad) {
+      $('select[name=selpais]').val(data_from_server.id_pais).trigger("change");
+
+    }
+  });
+
+  </script>
+{% endblock %}

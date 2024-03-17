@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% from 'macros.html' import pintar_alerta %}
+
+
+{% block dinamico %}
+<div class="card">
+  <div class="card-header">
+    <a href="{{ url_for('proveedormod.agregar_proveedor') }}" class="btn btn-primary">Agregar ciudad</a>
+  </div>
+  <div class="card-body">
+    <table class="table" id="tbl">
+        <thead>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">RUC</th>
+            <th scope="col">RAZON SOCIAL</th>
+            <th scope="col">EMAIL</th>
+            <th scope="col">TELEFONO</th>
+            <th scope="col">CIUDAD</th>
+            <th scope="col">Acciones</th>
+
+          </tr>
+        </thead>
+        <tbody>
+          </tbody>
+        </table>
+        {{ pintar_alerta(messages) }}
+      </div>
+    </div>
+
+{% endblock %}
+
+{% block mi_javascript %}
+<script>
+ 
+	const initDatatable = () => {
+		$('#tbl').DataTable({
+			ajax: '/referencial/proveedor/v1/get-proveedores',
+			columns: [
+				{ data: 'id' },
+				{ data: function(row) {
+					return `${row.ruc}-${row.ruc_nro_identificador}`
+					}},
+				{ data: function(row) {
+					return `${row.razon_social}-${row.apellido}`
+					}},
+				{ data: 'email' },
+				{ data: 'telefono' },
+				{ data: 'nombre_ciudad' },
+				{ data: function(row){
+					return `<a  name="btn_editar" href="/referencial/proveedor/editar-proveedor/${row.id}" class="btn btn-primary" >Editar</a>
+					<button name="btn_eliminar"  data-id="${row.id}" class="btn btn-warning">Eliminar</button>`
+				} }
+			]
+		});
+		
+	}
+
+	const addEvents = () => {
+		$('#tbl').on('click','button[name="btn_eliminar"]', function(){
+			const id =  $(this).data('id');
+
+			if(confirm('Desea eliminar ')){
+
+				fetch('/referencial/proveedor/v1/delete-proveedor',{
+					method:'DELETE',
+					headers:{
+						'Content-Type': 'application/json'
+					}
+					, body: JSON.stringify({ id:id })
+				})
+				.then(resp => resp.json())
+				.then(data => {
+					if(data && !data.error && data.success){		
+					//para borrar fila del datable
+					const fila = $(this).closest('tr');
+					const table = $('#tbl').DataTable();
+					alert(data.success);
+					table.row(fila).remove().draw();
+					}
+				})
+				.catch(err => {
+					alert(err);
+				 });
+
+				
+			}
+		
+
+		});
+
+	}
+//funtion name
+  $(function(){
+	initDatatable();
+	addEvents();
+
+  });
+</script>
+{% endblock %}

@@ -14,3 +14,6 @@ app.register_blueprint(ciumod, url_prefix=f'{modulo0}/ciudad')
 app.register_blueprint(tipoinsumomod, url_prefix=f'{modulo0}/tipo-insumo')
 app.register_blueprint(estadomod,url_prefix=f'{modulo0}/estado')
 app.register_blueprint(proveedormod,url_prefix=f'{modulo0}/proveedor')
+
+
+#
