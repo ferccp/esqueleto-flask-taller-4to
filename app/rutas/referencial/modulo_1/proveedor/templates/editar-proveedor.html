@@ -199,6 +199,11 @@ const getCiudadesByPaisUrl = (id) => `/referencial/ciudad/get-ciudad-by-idpais/$
         })
 
     });
+
+    $('#btnlimpiar').on('click', function(){
+        $('.card-body').find('input[type=text]').val('');
+        $('select[name=selciudad], select[name=selpais]').val('').trigger('change')
+    });
   }
  
  

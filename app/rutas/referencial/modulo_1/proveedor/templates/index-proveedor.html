@@ -5,7 +5,7 @@
 {% block dinamico %}
 <div class="card">
   <div class="card-header">
-    <a href="{{ url_for('proveedormod.agregar_proveedor') }}" class="btn btn-primary">Agregar ciudad</a>
+    <a href="{{ url_for('proveedormod.agregar_proveedor') }}" class="btn btn-primary">Agregar Proveedor</a>
   </div>
   <div class="card-body">
     <table class="table" id="tbl">
@@ -48,7 +48,7 @@
 				{ data: 'telefono' },
 				{ data: 'nombre_ciudad' },
 				{ data: function(row){
-					return `<a  name="btn_editar" href="/referencial/proveedor/editar-proveedor/${row.id}" class="btn btn-primary" >Editar</a>
+					return `<button  name="btn_editar" data-id="${row.id}"  class="btn btn-primary" >Editar</button>
 					<button name="btn_eliminar"  data-id="${row.id}" class="btn btn-warning">Eliminar</button>`
 				} }
 			]
@@ -88,6 +88,20 @@
 		
 
 		});
+
+
+		$('#tbl').on('click','button[name="btn_editar"]', function(){
+			const id =  $(this).data('id');
+
+			if(confirm('Desea Editar ')){
+				const id = $(this).data('id');
+				location.href = `/referencial/proveedor/editar-proveedor/${id}`
+				
+			}
+		
+
+		});
+
 
 	}
 //funtion name

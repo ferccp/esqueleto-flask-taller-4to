@@ -98,7 +98,7 @@
     </div>
     <div class="card-footer">
       <button type="submit" class="btn btn-primary" id="btnguardar">Guardar</button>
-      <button type="reset" class="btn btn-info" id="btnlimpiar">Limpiar Formulario</button>
+      <button type="button" class="btn btn-info" id="btnlimpiar">Limpiar Formulario</button>
 
     </div>
   </div>
@@ -136,6 +136,10 @@ const getCiudadesByPaisUrl = (id) => `/referencial/ciudad/get-ciudad-by-idpais/$
       }
 
     });
+    $('#btnlimpiar').on('click', function(){
+      $('.card-body').find('input[type=text]').val('');
+      $('select[name=selciudad], select[name=selpais]').val('').trigger('change')
+  });
   }
  
  
