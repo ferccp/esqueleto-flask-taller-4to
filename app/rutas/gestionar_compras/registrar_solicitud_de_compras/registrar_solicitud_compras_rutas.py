@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request,redirect , url_for, jsonify, flash
 from flask import current_app as app
 
-rscmod = Blueprint('rcsmod',__name__, template_folder='templates')
+rscmod = Blueprint('rscmod',__name__, template_folder='templates')
 
 @rscmod.route('/index-registrar-solicitud-compras')
 def index_registrar_solicitud_compras():
