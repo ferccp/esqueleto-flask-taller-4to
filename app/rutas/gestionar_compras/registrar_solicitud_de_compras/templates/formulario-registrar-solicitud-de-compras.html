@@ -1,0 +1,189 @@
+{% extends "base.html" %}
+{% from 'macros.html' import pintar_alerta %}
+
+{% block titulo_pagina %} Registrar solicitud de compras {% endblock %}
+{% block dinamico %}
+<div class="card">
+        <div class="card-header">Registrar solicitud de compras</div>
+      
+	   <!--card main-->
+		
+	   <div class="card-body">
+		<!--nro solicitud, estado de solcitud, fecha de solicitud-->			
+		<div class="row g-3">
+            <div class="col col-md-1">
+                <label for="txtruc" class="visually-hidden">Nro. Solicitud</label>
+            </div>
+            <div class="col col-md-2">
+              <input type="text" class="form-control" id="txtruc" value="" required="">
+            </div>
+            <div class="col col-md-1">
+                <label for="inputPassword2" class="visually-hidden">Estado solicitud</label>
+            </div>
+            <div class="col col-md-3">
+              <input type="text" class="form-control" id="txtid" value="" autocomplete="off" required="">
+            </div>
+            <div class="col col-md-1">
+                <label for="inputPassword2" class="visually-hidden">Fecha solicitud</label>
+            </div>
+            <div class="col col-md-3">
+              <input type="text" class="form-control" id="txtid" value="" autocomplete="off" required="">
+            </div>
+        </div>
+
+
+		<!-- -->	
+				
+
+
+		<!---->			
+
+		<!-- -->
+		<div class="row mt-4">
+			<div class="col col-md-12">
+				<div class="card">
+					<div class="card-header">Datos del Solicitante</div>
+					<div class="card-body">
+
+					<!--codigo funcionario ,nombre-->			
+
+						<div class="row g-3">
+							<div class="col col-md-1">
+								<label for="txtruc" class="visually-hidden">Cod funcionario</label>
+							</div>
+							<div class="col col-md-2">
+							  <input type="text" class="form-control" id="txtruc" value="" required="">
+							</div>
+							<div class="col col-md-1">
+								<label for="inputPassword2" class="visually-hidden">Cedula </label>
+							</div>
+							<div class="col col-md-3">
+							  <input type="text" class="form-control" id="txtid" value="" autocomplete="off" required="">
+							</div>
+							<div class="col col-md-1">
+								<label for="inputPassword2" class="visually-hidden">Cargo</label>
+							</div>
+							<div class="col col-md-3">
+							  <input type="text" class="form-control" id="txtid" value="" autocomplete="off" required="">
+							</div>
+						</div>
+
+
+
+						<div class="row g-3">
+							<div class="col col-md-1">
+								<label for="txtruc" class="visually-hidden">Nombres</label>
+							</div>
+							<div class="col col-md-2">
+							  <input type="text" class="form-control" id="txtruc" value="" required="">
+							</div>
+							<div class="col col-md-1">
+								<label for="inputPassword2" class="visually-hidden">Apellido</label>
+							</div>
+							<div class="col col-md-3">
+							  <input type="text" class="form-control" id="txtid" value="" autocomplete="off" required="">
+							</div>
+							<div class="col col-md-1">
+								<label for="inputPassword2" class="visually-hidden">Departaemnto</label>
+							</div>
+							<div class="col col-md-3">
+							  <input type="text" class="form-control" id="txtid" value="" autocomplete="off" required="">
+							</div>
+						</div>
+
+				
+					</div>
+				</div>
+			</div>
+		</div>
+	<!-- -->
+
+	<!-- solicitud info -->
+	<div class="row mt-4">
+		<div class="col col-md-6">
+			<div class="card">
+				<div class="card-header">Solicitud - info</div>
+				<div class="card-body">
+					<div class="row g-3">
+						<div class="col col-md-2">
+							<label for="txtruc" class="visually-hidden">Prioridad</label>
+						</div>
+						<div class="col col-md-4">
+						  <input type="text" class="form-control" id="txtruc" value="" required="">
+						</div>
+						<div class="col col-md-3">
+							<label for="inputPassword2" class="visually-hidden">Fecha Entrega </label>
+						</div>
+						<div class="col col-md-3">
+						  <input type="text" class="form-control" id="txtid" value="" autocomplete="off" required="">
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+	</div>
+	<!-- -->
+
+<!-- Información insumos -->
+		<div class="row mt-4">
+			<div class="col col-md-12">
+				<div class="card">
+					<div class="card-header">
+						<div class="row g-3">
+							<h5>Información insumos</h5>
+							<div class="col col-md-offset-5"></div>
+							<div class="col col-md-1">
+								<label for="txtruc" class="visually-hidden">Agregar</label>
+							</div>
+							<div class="col col-md-4">
+							<input type="text" class="form-control" id="txtruc" value="" required="">
+							</div>
+						</div>
+					</div>
+					<div class="card-body">
+						<table class="table">
+							<thead>
+							<tr>
+								<th scope="col">#</th>
+								<th scope="col">First</th>
+								<th scope="col">Last</th>
+								<th scope="col">Handle</th>
+							</tr>
+							</thead>
+							<tbody>
+							<tr>
+								<th scope="row">1</th>
+								<td>Mark</td>
+								<td>Otto</td>
+								<td>@mdo</td>
+							</tr>
+							<tr>
+								<th scope="row">2</th>
+								<td>Jacob</td>
+								<td>Thornton</td>
+								<td>@fat</td>
+							</tr>
+							<tr>
+								<th scope="row">3</th>
+								<td colspan="2">Larry the Bird</td>
+								<td>@twitter</td>
+							</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!--  -->
+	</div>
+        <div class="card-footer">
+         <button class="btn btn-primary">Registrar</button>
+		 <button class="btn btn-secondary">Cancelar</button>
+		 <button class="btn btn-info">Salir</button>
+        </div>
+</div>
+
+
+{{ pintar_alerta(messages) }}
+{% endblock %}

@@ -9,11 +9,18 @@ from app.rutas.referencial.modulo_1.tipo_insumo.tipo_insumo_rutas import tipoins
 from app.rutas.referencial.modulo_1.estado.estado_rutas import estadomod
 from app.rutas.referencial.modulo_1.proveedor.proveedor_rutas import proveedormod 
 
+#gestionar compras
+
+from app.rutas.gestionar_compras.registrar_solicitud_de_compras.registrar_solicitud_compras_rutas import rscmod
+
+
 modulo0 = '/referencial'
 app.register_blueprint(ciumod, url_prefix=f'{modulo0}/ciudad')
 app.register_blueprint(tipoinsumomod, url_prefix=f'{modulo0}/tipo-insumo')
 app.register_blueprint(estadomod,url_prefix=f'{modulo0}/estado')
 app.register_blueprint(proveedormod,url_prefix=f'{modulo0}/proveedor')
 
+modulo1 = '/gestionar-compras'
+app.register_blueprint(rscmod, url_prefix=f'{modulo1}/registrar-solicitud-compras')
 
 #
