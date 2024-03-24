@@ -11,18 +11,15 @@
 	   <div class="card-body">
 		<!--nro solicitud, estado de solcitud, fecha de solicitud-->			
 		<div class="row g-3">
-            <div class="col col-md-1">
-                <label for="txtruc" class="visually-hidden">Nro. Solicitud</label>
+            <div id="lblnrosolicitud" class="col col-xs-12 col-md-3 col-lg-3 col-xl-3" hidden>
+                <label >Nro. Solicitud</label>
             </div>
-            <div class="col col-md-2">
-              <input type="text" class="form-control" id="txtruc" value="" required="">
+            <div class="col col-xs-12 col-md-1 col-lg-1 col-xl-1">
+                <label for="inputPassword2">Estado solicitud</label>
             </div>
-            <div class="col col-md-1">
-                <label for="inputPassword2" class="visually-hidden">Estado solicitud</label>
-            </div>
-            <div class="col col-md-3">
+            <div class="col col-xs-12 col-md-3 col-lg-3 col-xl-3">
                 <select class="form-control"  name = "selEstado">
-                    <option selected>...</option>
+                    <option selected></option>
                     {% if listarEstado |length > 0%}
                             {% for esta in listarEstado %}
                             <option value="{{ esta[0] }}">{{ esta[1] }}</option>
@@ -31,10 +28,10 @@
                   </select>
 	             </div>
             <div class="col col-md-1">
-                <label for="inputPassword2" class="visually-hidden">Fecha solicitud</label>
+                <label for="fechasolicitud" >Fecha solicitud</label>
             </div>
             <div class="col col-md-3">
-              <input type="text" class="form-control" id="txtid" value="" autocomplete="off" required="">
+              <input type="date" class="form-control" id="fechasolicitud" value="" autocomplete="off">
             </div>
         </div>
 
@@ -59,7 +56,7 @@
   
 							<div class="col col-md-6 mb-4">
                                 <select class="form-control"  name = "selfuncionario">
-                                    <option selected>Buscar Funcionario</option>
+                                    <option selected></option>
                                     {% if listarFuncionario |length > 0%}
                                             {% for item in listarFuncionario %}
                                             <option value="{{ item['id'] }}">{{ item['ci'] }} - {{ item['nombres'] }} - {{ item['apellidos'] }}</option>
@@ -105,22 +102,30 @@
 
 	<!-- solicitud info -->
 	<div class="row mt-4">
-		<div class="col col-md-6">
+		<div class="col col-md-8">
 			<div class="card">
 				<div class="card-header">Solicitud - info</div>
 				<div class="card-body">
 					<div class="row g-3">
 						<div class="col col-md-2">
-							<label for="txtruc" class="visually-hidden">Prioridad</label>
+							<label for="txtruc">Prioridad</label>
 						</div>
 						<div class="col col-md-4">
-						  <input type="text" class="form-control" id="txtruc" value="" required="">
+
+							<select class="form-control"  name = "selPrioridad">
+								<option selected></option>
+								{% if listar_prioridades |length > 0%}
+									{% for item in listar_prioridades %}
+									<option value="{{ item['id'] }}">{{ item['descripcion'] }}</option>
+									{% endfor %}
+								{% endif %}
+							      </select>
 						</div>
 						<div class="col col-md-3">
-							<label for="inputPassword2" class="visually-hidden">Fecha Entrega </label>
+							<label for="inputPassword2">Fecha Entrega </label>
 						</div>
 						<div class="col col-md-3">
-						  <input type="text" class="form-control" id="txtid" value="" autocomplete="off" required="">
+						  <input type="date" class="form-control" id="txtfechaentrega" value="" autocomplete="off" >
 						</div>
 					</div>
 				</div>
@@ -137,12 +142,20 @@
 					<div class="card-header">
 						<div class="row g-3">
 							<h5>Información insumos</h5>
-							<div class="col col-md-offset-5"></div>
+							<div class="col col-md-offset-1"></div>
 							<div class="col col-md-1">
 								<label for="txtruc" class="visually-hidden">Agregar</label>
 							</div>
-							<div class="col col-md-4">
-							<input type="text" class="form-control" id="txtruc" value="" required="">
+							<div class="col col-md-7">
+								<select class="form-control"  name = "selinsumo">
+									<option selected></option>
+									{% if listar_insumos |length > 0%}
+										{% for item in listar_insumos %}
+										<option value="{{ item['id'] }}">{{ item['id'] }} | {{ item['descripcion'] }} | {{ item['costo'] }} | {{ item['marca'] }} | {{ item['tipo_insumo'] }} | {{ item['unidad_medida'] }}</option>
+										{% endfor %}
+									{% endif %}
+								 </select>
+
 							</div>
 						</div>
 					</div>
@@ -193,12 +206,15 @@
 
 {% block mi_javascript %}
 <script>
+
+	const data_from_server = {
+	}
 	const extra_settings_select2 = {
-		placeholder: "Buscar funcionario",
+		placeholder: "Buscar Item",
 		theme: 'bootstrap-5'
 	      }
 	      $(function(){
-		$('select[name="selestado"], select[name="selfuncionario"]').select2(extra_settings_select2);
+		$('select[name="selestado"], select[name="selfuncionario"], select[name="selPrioridad"], select[name="selinsumo"]').select2(extra_settings_select2);
 		$('select[name="selfuncionario"]').on('change', function(){
 		  if(!$(this).val()) {
 		    $('#tblfuncionario').find('td').val('');

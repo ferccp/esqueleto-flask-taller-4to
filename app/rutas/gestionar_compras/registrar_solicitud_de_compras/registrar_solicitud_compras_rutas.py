@@ -2,6 +2,8 @@ from flask import Blueprint, render_template, request,redirect , url_for, jsonif
 from flask import current_app as app
 from app.dao.referencial.estado.EstadoDao import EstadoDao
 from app.dao.referencial.funcionario.FuncionarioDao import FuncionarioDao
+from app.dao.referencial.prioridad.PrioridadDao import PrioridadDao
+from app.dao.referencial.insumos.InsumoDao import InsumoDao
 
 
 
@@ -15,8 +17,14 @@ def index_registrar_solicitud_compras():
 def formulario_registrar_solicitud_compras():
         estado = EstadoDao()
         funci = FuncionarioDao()
+        prio = PrioridadDao()
+        insumo = InsumoDao()
+
+
         return render_template('formulario-registrar-solicitud-de-compras.html',listarEstado = estado.getEsatdo(), \
-                                listarFuncionario = funci.getFuncionario())
+                                listarFuncionario = funci.getFuncionario(), \
+                                listar_prioridades = prio.getPrioridades(), \
+                                listar_insumos = insumo.getInsumos())
 
 
 # REST 
