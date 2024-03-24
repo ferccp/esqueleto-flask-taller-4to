@@ -21,8 +21,15 @@
                 <label for="inputPassword2" class="visually-hidden">Estado solicitud</label>
             </div>
             <div class="col col-md-3">
-              <input type="text" class="form-control" id="txtid" value="" autocomplete="off" required="">
-            </div>
+                <select class="form-control"  name = "selEstado">
+                    <option selected>...</option>
+                    {% if listarEstado |length > 0%}
+                            {% for esta in listarEstado %}
+                            <option value="{{ esta[0] }}">{{ esta[1] }}</option>
+                            {% endfor %}
+                    {% endif %}
+                  </select>
+	             </div>
             <div class="col col-md-1">
                 <label for="inputPassword2" class="visually-hidden">Fecha solicitud</label>
             </div>
@@ -47,49 +54,47 @@
 
 					<!--codigo funcionario ,nombre-->			
 
-						<div class="row g-3">
-							<div class="col col-md-1">
-								<label for="txtruc" class="visually-hidden">Cod funcionario</label>
-							</div>
-							<div class="col col-md-2">
-							  <input type="text" class="form-control" id="txtruc" value="" required="">
-							</div>
-							<div class="col col-md-1">
-								<label for="inputPassword2" class="visually-hidden">Cedula </label>
-							</div>
-							<div class="col col-md-3">
-							  <input type="text" class="form-control" id="txtid" value="" autocomplete="off" required="">
-							</div>
-							<div class="col col-md-1">
-								<label for="inputPassword2" class="visually-hidden">Cargo</label>
-							</div>
-							<div class="col col-md-3">
-							  <input type="text" class="form-control" id="txtid" value="" autocomplete="off" required="">
-							</div>
+						<div class="row g-3 align-items-center">
+							<div class="col"></div>
+  
+							<div class="col col-md-6 mb-4">
+                                <select class="form-control"  name = "selfuncionario">
+                                    <option selected>Buscar Funcionario</option>
+                                    {% if listarFuncionario |length > 0%}
+                                            {% for item in listarFuncionario %}
+                                            <option value="{{ item['id'] }}">{{ item['ci'] }} - {{ item['nombres'] }} - {{ item['apellidos'] }}</option>
+                                            {% endfor %}
+                                    {% endif %}
+                                  </select>
+                            </div>
+                            <div class="col"></div>
+
 						</div>
 
 
 
-						<div class="row g-3 mt-4">
-							<div class="col col-md-1">
-								<label for="txtruc" class="visually-hidden">Nombres</label>
-							</div>
-							<div class="col col-md-2">
-							  <input type="text" class="form-control" id="txtruc" value="" required="">
-							</div>
-							<div class="col col-md-1">
-								<label for="inputPassword2" class="visually-hidden">Apellido</label>
-							</div>
-							<div class="col col-md-3">
-							  <input type="text" class="form-control" id="txtid" value="" autocomplete="off" required="">
-							</div>
-							<div class="col col-md-1">
-								<label for="inputPassword2" class="visually-hidden">Departamento</label>
-							</div>
-							<div class="col col-md-3">
-							  <input type="text" class="form-control" id="txtid" value="" autocomplete="off" required="">
-							</div>
-						</div>
+                        <div class="row g-3">
+                            <div class="col col-md-12">
+                              <table id="tblfuncionario" class="table table-striped table-hover">
+                                  <tr>
+                                    <th scope="row" class="table-dark">Cedula</th>
+                                    <td colspan="row" class="text-center" id="tdcedula"></td>
+                                  </tr>
+                                  <tr>
+                                    <th scope="row" class="table-dark">Nombres y Apellidos</th>
+                                    <td colspan="row" class="text-center" id="tdnombres"></td>
+                                  </tr>
+                                  <tr>
+                                    <th scope="row" class="table-dark">Cargo</th>
+                                    <td colspan="2" class="text-center" id="tdcargo"></td>
+                                  </tr>
+                                  <tr>
+                                    <th scope="row" class="table-dark">Departamento</th>
+                                    <td colspan="2" class="text-center" id="tddepartamento"></td>
+                                  </tr>
+                              </table>
+                            </div>
+                        </div>
 
 				
 					</div>
@@ -183,7 +188,33 @@
 		 <button class="btn btn-info">Salir</button>
         </div>
 </div>
-
-
 {{ pintar_alerta(messages) }}
 {% endblock %}
+
+{% block mi_javascript %}
+<script>
+	const extra_settings_select2 = {
+		placeholder: "Buscar funcionario",
+		theme: 'bootstrap-5'
+	      }
+	      $(function(){
+		$('select[name="selestado"], select[name="selfuncionario"]').select2(extra_settings_select2);
+		$('select[name="selfuncionario"]').on('change', function(){
+		  if(!$(this).val()) {
+		    $('#tblfuncionario').find('td').val('');
+		    return;
+		  }
+		  fetch(`/gestionar-compras/registrar-solicitud-compras/v1/get-funcionario-by-id/${$(this).val()}`)
+		    .then(resp => resp.json())
+		    .then(funcionario => {
+		      $('#tdcedula').text(funcionario.ci);
+		      $('#tdnombres').text(`${funcionario.nombres} ${funcionario.apellidos}`);
+		      $('#tdcargo').text(funcionario.cargo);
+		      $('#tddepartamento').text(funcionario.departamento);
+		    })
+		    .catch(err => console.error(err));
+	    
+		});
+	      });
+    </script>
+  {% endblock %}

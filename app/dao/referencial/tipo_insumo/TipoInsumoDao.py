@@ -2,7 +2,7 @@ from app.conexion.Conexion import Conexion #app.conexion(paquete) .Conexion(Modu
 
 class TipoInsumoDao:
 		def getTipoInsumo(self):
-				sql = "select * from tipo_insumos"
+				sql = "select * from tipo_insumo"
 				conexion = Conexion()
 				conn = conexion.getConexion()
 				cur = conn.cursor()
@@ -19,7 +19,7 @@ class TipoInsumoDao:
 
 		def insertTipoInsumo(self, descripcion):
 				insertSQL = """
-				INSERT INTO tipo_insumos(descripcion) VALUES(%s)
+				INSERT INTO tipo_insumo(descripcion) VALUES(%s)
 				"""
 				conexion = Conexion()
 				conn = conexion.getConexion()
@@ -39,7 +39,7 @@ class TipoInsumoDao:
 		def getTipoInsumoById(self, id):
 			tipoInsumoSQL = """
             SELECT id, descripcion
-			FROM public.tipo_insumos WHERE id = %s """
+			FROM public.tipo_insumo WHERE id = %s """
 			conexion = Conexion()
 			con = conexion.getConexion()
 			cur = con.cursor()
@@ -60,7 +60,7 @@ class TipoInsumoDao:
 		
 		def updateTipoInsumo(self, id, descripcion):
 				updateSQL = """
-				update tipo_insumos set descripcion = %s where id = %s
+				update tipo_insumo set descripcion = %s where id = %s
 				"""
 				conexion = Conexion()
 				conn = conexion.getConexion()
@@ -79,7 +79,7 @@ class TipoInsumoDao:
   
 		def deleteTipoInsumo(self, id):
 				deleteSQL = """
-				delete from tipo_insumos  where id = %s
+				delete from tipo_insumo  where id = %s
 				"""
 				conexion = Conexion()
 				conn = conexion.getConexion()

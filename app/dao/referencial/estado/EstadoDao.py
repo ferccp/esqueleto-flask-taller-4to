@@ -2,7 +2,7 @@ from app.conexion.Conexion import  Conexion
 
 class EstadoDao:
         def getEsatdo(self):
-                sql = "select * from estados"
+                sql = "select id, descripcion from estados"
                 conexion = Conexion()
                 conn = conexion.getConexion()
                 cur = conn.cursor()
