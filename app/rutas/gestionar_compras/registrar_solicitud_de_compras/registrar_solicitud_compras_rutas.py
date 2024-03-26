@@ -21,10 +21,10 @@ def formulario_registrar_solicitud_compras():
         insumo = InsumoDao()
 
 
-        return render_template('formulario-registrar-solicitud-de-compras.html',listarEstado = estado.getEsatdo(), \
-                                listarFuncionario = funci.getFuncionario(), \
-                                listar_prioridades = prio.getPrioridades(), \
-                                listar_insumos = insumo.getInsumos())
+        return render_template('formulario-registrar-solicitud-de-compras.html',estados = estado.getEsatdo(), \
+                                lista_funcionarios = funci.getFuncionario(), \
+                                lista_prioridades = prio.getPrioridades(), \
+                                lista_insumos = insumo.getInsumos())
 
 
 # REST 
