@@ -9,23 +9,41 @@ from app.dao.gestionar_compras.registrar_solicitud_de_compras.SolicitudComprasDa
 
 
 rscmod = Blueprint('rscmod',__name__, template_folder='templates')
+#algunas instancias 
+estado = EstadoDao()
+funci = FuncionarioDao()
+prio = PrioridadDao()
+insumo = InsumoDao()
+solicitud_dao = SolicitudComprasDao()
+
+
 
 @rscmod.route('/index-registrar-solicitud-compras')
 def index_registrar_solicitud_compras():
-		pass
+		url_modificar = '/gestionar-compras/registrar-solicitud-compras/formulario-modificar-solicitud-compras'
+		lista_solicitudes = solicitud_dao.getSolcitudes()
+		if len(lista_solicitudes) < 0:
+			flash('No hay solicitudes registradas', 'warning')
+		return render_template('index-registrar-solicitud-de-compras.html', lista_solicitudes = lista_solicitudes, url_modificar = url_modificar)
 
 @rscmod.route('/formulario-registrar-solicitud-compras')
 def formulario_registrar_solicitud_compras():
-		estado = EstadoDao()
-		funci = FuncionarioDao()
-		prio = PrioridadDao()
-		insumo = InsumoDao()
-
-
 		return render_template('formulario-registrar-solicitud-de-compras.html',estados = estado.getEsatdo(), \
 								lista_funcionarios = funci.getFuncionario(), \
 								lista_prioridades = prio.getPrioridades(), \
 								lista_insumos = insumo.getInsumos())
+
+
+
+@rscmod.route('/formulario-modificar-solicitud-compras/<id_solicitud>')
+def formulario_modificar_solicitud_compras(id_solicitud):
+		print(estado.getEsatdo())
+		return render_template('formulario-modificar-solicitud-de-compras.html',estados = estado.getEsatdo(), \
+                                solicitud = solicitud_dao.getSolcitudById(id_solicitud), \
+								lista_funcionarios = funci.getFuncionario(), \
+								lista_prioridades = prio.getPrioridades(), \
+								lista_insumos = insumo.getInsumos())
+	
 
 
 # REST 
@@ -38,7 +56,6 @@ def get_funcionario_by_id(id):
 
 @rscmod.route('/v1/registrar-solicitud-compra', methods=['POST'])
 def registrar_solicitud_compra():
-		print(request.json.get('detalle_insumo'))
 		
 		#recuperar informacion
 		id_estado = request.json.get('id_estado')
@@ -53,17 +70,36 @@ def registrar_solicitud_compra():
 				return  {'success': None, 'error':'Hay errores en el payload de POST, consulte al administrador ' },400
 		detalle_insumo_dto = [ SolicitudCompraDetalledto(None, item['id_insumo'], item['cantidad']) for item in detalle_insumo ]
 		dto = SolcitudCompradto(None, None, id_estado, id_funcionario, id_prioridad, 1, fecha_entrega,detalle_insumo_dto)
-		solicitud_dao = SolicitudComprasDao()
 		isSaved = solicitud_dao.insertSolicitud(dto)
 		if isSaved:
 			return {'success':'Insercion exitoso', 'error': None},200 
 		else:
 			return  {'success': None, 'error':'No se pudo registrar solicitud de compras, consulte al administrador' },500
+@rscmod.route('/v1/modificar-solicitud-compra', methods=['PUT'])
+def modificar_solicitud_compra():
+		
+		#recuperar informacion
+		id_solicitud = request.json.get('id_solicitud')
+		id_estado = request.json.get('id_estado')
+		id_funcionario = request.json.get('id_funcionario')
+		id_prioridad = request.json.get('id_prioridad')
+		fecha_entrega = request.json.get('fecha_entrega')
+		detalle_insumo = request.json.get('detalle_insumo')
+
+		# Validar 
+		if not id_solicitud or not id_estado or not id_funcionario or not id_prioridad or not fecha_entrega or not detalle_insumo or len(detalle_insumo) ==0:
+				app.logger.error({'success': None, 'error':'Hay errores en el payload de PUT, consulte al administrador' })
+				return  {'success': None, 'error':'Hay errores en el payload de PUT, consulte al administrador ' },400
+		detalle_insumo_dto = [ SolicitudCompraDetalledto(id_solicitud, item['id_insumo'], item['cantidad']) for item in detalle_insumo ]
+		dto = SolcitudCompradto(id_solicitud, None, id_estado, id_funcionario, id_prioridad, 1, fecha_entrega,detalle_insumo_dto)
+		isSaved = solicitud_dao.updateModificar(dto)
+		if isSaved:
+			return {'success':'Modificacion exitoso', 'error': None},200 
+		else:
+			return  {'success': None, 'error':'No se pudo modificar solicitud de compras, consulte al administrador' },500
 
 			
 		
-
-
 
 
 

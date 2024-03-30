@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% from 'macros.html' import pintar_alerta %}
+
+
+{% block dinamico %}
+<div class="card">
+  <div class="card-header">
+    <a href="{{ url_for('rscmod.formulario_registrar_solicitud_compras') }}" class="btn btn-primary">Nuevo</a>
+    <a  class="btn btn-info">Ver Pedidos de Compra</a>
+
+  </div>
+  <div class="card-body">
+    <table class="table" id="tbl">
+        <thead>
+          <tr>
+            <th scope="col">Nro Solicitud</th>
+            <th scope="col">Departamento</th>
+            <th scope="col">Cargo</th>
+            <th scope="col">Fecha Entrega</th>
+            <th scope="col">Estado</th>
+            <th scope="col">Prioridad</th>
+            <th scope="col">Accion</th>
+          </tr>
+        </thead>
+        <tbody>
+            {% if lista_solicitudes|length > 0 %}
+                {% for item in lista_solicitudes %}
+                <tr class="item_solicitud" data-id="{{ item['id_solicitud'] }}">
+                    <td>{{ item['nro_solicitud'] }}</td>
+                    <td>{{ item['departamento'] }}</td>
+                    <td>{{ item['cargo'] }}</td>
+                    <td>{{ item['fecha_entrega'] }}</td>
+                    <td>{{ item['estado'] }}</td>
+                    <td>{{ item['prioridad'] }}</td>
+                    <td>
+                        <button  type="button" class="asignar btn btn-primary btn-sm">Asignar a Pedido de Compras</button>
+                        <button type="button" class="modificar btn btn-info btn-sm">Modificar</button>
+                        <button type="button" class="inactivar btn btn-warning btn-sm">Inactivar</button>
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            {% endif %}
+          </tbody>
+        </table>
+        {{ pintar_alerta(messages) }}
+      </div>
+    </div>
+
+{% endblock %}
+
+{% block mi_javascript %}
+<script>
+ const data_from_server = {
+    formulario_modificar_solicitud_compras: '{{ url_modificar }}'
+ }
+
+	const addEvents = () => {
+		$('#tbl').on('click','.asignar', function(){
+
+			if(confirm('Desea Asignar ')){
+                /*
+                const id =  $(this).data('id');
+
+				fetch('/referencial/proveedor/v1/delete-proveedor',{
+					method:'DELETE',
+					headers:{
+						'Content-Type': 'application/json'
+					}
+					, body: JSON.stringify({ id:id })
+				})
+				.then(resp => resp.json())
+				.then(data => {
+					if(data && !data.error && data.success){		
+					//para borrar fila del datable
+					const fila = $(this).closest('tr');
+					const table = $('#tbl').DataTable();
+					alert(data.success);
+					table.row(fila).remove().draw();
+					}
+				})
+				.catch(err => {
+					alert(err);
+				 });
+                 */
+				
+			}
+		
+
+		});
+
+
+		$('#tbl').on('click','.modificar', function(){
+			const id =  $(this).data('id');
+
+			if(confirm('Desea Modificar ')){
+				
+                const id = $(this).closest('tr').data('id');
+				location.href = `${data_from_server.formulario_modificar_solicitud_compras}/${id}`
+				
+			}
+		
+
+		});
+
+
+	}
+//funtion name
+  $(function(){
+    $('#tbl').DataTable();
+	addEvents();
+
+  });
+</script>
+{% endblock %}
