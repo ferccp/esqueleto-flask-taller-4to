@@ -7,8 +7,9 @@ class EstadoDao:
                 conn = conexion.getConexion()
                 cur = conn.cursor()
                 try:
-                        cur.execute(sql)
-                        return cur.fetchall()
+                        cur.execute(sql) 
+                        tuplas = cur.fetchall()
+                        return [{ 'id':item[0], 'descripcion': item[1] } for item in tuplas] if tuplas else []
                 except conn.Error as e:
                         print( f'pgcode = { e.pgcode }, mensaje = {e.pgerror}' )
                 finally:

@@ -153,8 +153,7 @@
 
     <div class="card-footer">
         <button type="button" id="btnregistrar" class="btn btn-primary">Registrar</button>
-        <button type="button" class="btn btn-secondary">Cancelar</button>
-        <button type="button" class="btn btn-info">Salir</button>
+        <button type="button" id="btn_volver" class="btn btn-info">Volver</button>
     </div>
 </div>
 
@@ -168,6 +167,8 @@
   const data_from_server = {
     url_nueva_solicitud : '{{ url_for("rscmod.registrar_solicitud_compra") }}'
     ,insumos: {{ lista_insumos|tojson }}
+    ,index_registrar_solicitud_compras: '{{ url_for("rscmod.index_registrar_solicitud_compras") }}'
+
   }
 
   const extra_settings_select2 = {
@@ -321,7 +322,9 @@
           .catch(err => alert(err));
         });
 
-
+        $('#btn_volver').on('click', function(){
+          location.replace(data_from_server.index_registrar_solicitud_compras);
+        })
   });
 
 

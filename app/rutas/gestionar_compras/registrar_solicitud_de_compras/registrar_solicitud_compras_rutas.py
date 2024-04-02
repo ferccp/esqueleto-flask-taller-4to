@@ -37,8 +37,8 @@ def formulario_registrar_solicitud_compras():
 
 @rscmod.route('/formulario-modificar-solicitud-compras/<id_solicitud>')
 def formulario_modificar_solicitud_compras(id_solicitud):
-		print(estado.getEsatdo())
-		return render_template('formulario-modificar-solicitud-de-compras.html',estados = estado.getEsatdo(), \
+		
+		return render_template('formulario-modificar-solicitud-de-compras.html',estados = [ { 'id':item['id'], 'descripcion': item['descripcion']} for item in estado.getEsatdo() if item['descripcion'] in ("PENDIENTE","UTILIZADO")] , \
                                 solicitud = solicitud_dao.getSolcitudById(id_solicitud), \
 								lista_funcionarios = funci.getFuncionario(), \
 								lista_prioridades = prio.getPrioridades(), \

@@ -25,9 +25,9 @@
                 {% if estados|length > 0 %}
                   {% for item in estados %}
                       {% if solicitud['id_estado'] == item[0] %}
-                      <option value="{{ item[0] }}" selected>{{ item[1] }}</option>
+                      <option value="{{ item['id'] }}" selected>{{ item['descripcion'] }}</option>
                         {% else %}
-                        <option value="{{ item[0] }}">{{ item[1] }}</option>
+                        <option value="{{ item['id'] }}">{{ item['descripcion'] }}</option>
                       {% endif %}
                   {% endfor %}
                 {% endif %}
@@ -187,8 +187,7 @@
 
     <div class="card-footer">
         <button type="button" id="btnregistrar" class="btn btn-primary">Registrar</button>
-        <button type="button" class="btn btn-secondary">Cancelar</button>
-        <button type="button" class="btn btn-info">Salir</button>
+        <button type="button" id="btn_volver" class="btn btn-info">Volver</button>
     </div>
 </div>
 
@@ -200,7 +199,8 @@
 
   // proviene del servidor
   const data_from_server = {
-    id_solicitud: {{ solicitud['id_solicitud'] }}
+    id_solicitud: {{ solicitud['id_solicitud'] }},
+    id_estado: {{ solicitud['id_estado'] }}
     ,url_modificar_solicitud: '{{ url_for("rscmod.modificar_solicitud_compra") }}'
     ,index_registrar_solicitud_compras: '{{ url_for("rscmod.index_registrar_solicitud_compras") }}'
     ,insumos: {{ lista_insumos|tojson }}
@@ -225,7 +225,7 @@
   `;
 
   $(function(){
-    $('select[name="selfuncionario"], select[name="selprioridad"], select[name="selinsumo"]').select2(extra_settings_select2);
+    $('select[name="selfuncionario"], select[name="selprioridad"], select[name="selinsumo"],select[name="selestado"] ').select2(extra_settings_select2);
     $('select[name="selfuncionario"]').on('change', function(){
       if(!$(this).val()) {
         $('#tblfuncionario').find('td').text('');
@@ -366,7 +366,13 @@
           .catch(err => alert(err));
         });
 
-
+        $('#btn_volver').on('click', function(){
+          location.replace(data_from_server.index_registrar_solicitud_compras);
+        })
+        //estado:utilizado
+        if(data_from_server.id_estado === 4) {
+          $('select,input,button').attr('disabled', true);
+        }
   });
 
 
