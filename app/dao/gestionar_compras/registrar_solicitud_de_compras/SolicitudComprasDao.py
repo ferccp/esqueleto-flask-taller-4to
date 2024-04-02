@@ -225,3 +225,26 @@ left join prioridades p on p.id = sc.id_prioridad
             cur.close()
             con.close()
         return False
+    
+    def anularSolicitud(selft,  current_user,id_solicitud):
+        """
+        Se actualiza el estado de la solicitud de compra a 3, anulado
+        """
+        updateSQL = """
+              update public.solicitud_de_compra set  id_estado = 3, modificacion_usuario =%s,modificacion_fecha =CURRENT_DATE, modificacion_hora = CURRENT_TIME(0)
+           where id_solicitud =%s
+        """
+        conexion = Conexion()
+        con = conexion.getConexion()
+        cur = con.cursor()
+
+        try:
+            cur.execute(updateSQL, (current_user,id_solicitud,))
+            con.commit()
+            return True
+        except con.Error as e:
+            pass
+        finally:
+            cur.close()
+            con.close()
+        return False

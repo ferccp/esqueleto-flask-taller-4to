@@ -75,6 +75,7 @@ def registrar_solicitud_compra():
 			return {'success':'Insercion exitoso', 'error': None},200 
 		else:
 			return  {'success': None, 'error':'No se pudo registrar solicitud de compras, consulte al administrador' },500
+
 @rscmod.route('/v1/modificar-solicitud-compra', methods=['PUT'])
 def modificar_solicitud_compra():
 		
@@ -98,7 +99,20 @@ def modificar_solicitud_compra():
 		else:
 			return  {'success': None, 'error':'No se pudo modificar solicitud de compras, consulte al administrador' },500
 
+@rscmod.route('/v1/anular-solicitud-compra', methods=['PUT'])
+def anular_solicitud_compra():
+		
+		#recuperar informacion
+		id_solicitud = request.json.get('id_solicitud')
+		# Validar 
+		isProcessed = solicitud_dao.anularSolicitud(1, id_solicitud)
+		if isProcessed:
+			return {'success':'Anulacion exitoso', 'error': None},200 
+		else:
+			return  {'success': None, 'error':'No se pudo anular solicitud de compras, consulte al administrador' },500
+
 			
+		
 		
 
 

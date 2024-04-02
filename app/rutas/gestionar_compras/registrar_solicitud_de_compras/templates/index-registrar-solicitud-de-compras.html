@@ -33,10 +33,20 @@
                     <td>{{ item['estado'] }}</td>
                     <td>{{ item['prioridad'] }}</td>
                     <td>
+                        {% if item['estado'] != 'ANULAR' %}
                         <button  type="button" class="asignar btn btn-primary btn-sm">Asignar a Pedido de Compras</button>
                         <button type="button" class="modificar btn btn-info btn-sm">Modificar</button>
-                        <button type="button" class="inactivar btn btn-warning btn-sm">Inactivar</button>
-
+                        <button type="button" class="anular btn btn-danger btn-sm" {% if item['estado'] == 'UTILIZADO' %}  hidden {% endif %}
+                        >Anular</button>
+                       
+                        {% else %}
+                        <a href="#" class="btn btn-danger btn-sm btn-icon-split">
+                          <span class="icon text-white-50">
+                              <i class="fas fa-trash"></i>
+                          </span>
+                          <span class="text">Registro Anulado</span>
+                         </a>
+                        {% endif %}
                     </td>
 
                 </tr>
@@ -55,7 +65,9 @@
 {% block mi_javascript %}
 <script>
  const data_from_server = {
-    formulario_modificar_solicitud_compras: '{{ url_modificar }}'
+    formulario_modificar_solicitud_compras: '{{ url_modificar }}',
+    anular_solicitud_compra: '{{ url_for("rscmod.anular_solicitud_compra") }}',
+    index_registrar_solicitud_compras: '{{ url_for("rscmod.index_registrar_solicitud_compras") }}' 
  }
 
 	const addEvents = () => {
@@ -102,6 +114,28 @@
 				location.href = `${data_from_server.formulario_modificar_solicitud_compras}/${id}`
 				
 			}
+		
+
+		});
+    $('#tbl').on('click','.anular', function() {
+      const id = $(this).closest('tr').data('id');
+			if(confirm('Desea Anular ')){        
+				 fetch(data_from_server.anular_solicitud_compra,{
+          method: 'PUT'
+          , headers: {
+            'Content-Type': 'application/json'
+          },body: JSON.stringify({ id_solicitud:id })
+         }).then(resp=> resp.json()).then( data => {
+          if(data && !data.error && data.success){
+            alert(data.success);
+            location.replace(data_from_server.index_registrar_solicitud_compras);
+          } else {
+            alert(data.error);
+          } 
+         }).catch(err => alert(err));
+
+      }
+			
 		
 
 		});
