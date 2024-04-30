@@ -16,6 +16,7 @@ from app.rutas.referencial.modulo_1.proveedor.proveedor_rutas import proveedormo
 #gestionar compras
 
 from app.rutas.gestionar_compras.registrar_solicitud_de_compras.registrar_solicitud_compras_rutas import rscmod
+from app.rutas.gestionar_compras.registrar_pedido_de_compra.registrar_pedido_compra_rutas import rpcmod
 
 
 
@@ -32,5 +33,6 @@ app.register_blueprint(proveedormod,url_prefix=f'{modulo0}/proveedor')
 
 modulo1 = '/gestionar-compras'
 app.register_blueprint(rscmod, url_prefix=f'{modulo1}/registrar-solicitud-compras')
+app.register_blueprint(rpcmod, url_prefix=f'{modulo1}/registrar-pedido-compras')
 
 #

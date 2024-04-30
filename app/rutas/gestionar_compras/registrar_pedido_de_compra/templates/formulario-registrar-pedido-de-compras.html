@@ -1,0 +1,308 @@
+{% extends "base.html" %}
+{% from 'macros.html' import pintar_alerta %}
+
+{% block titulo_pagina %}Registrar pedido de compras{% endblock %}
+
+{% block dinamico %}
+
+<div class="card">
+    <div class="card-header">Registrar pedido de compras Empresa:Iris </div>
+
+    <!-- card main -->
+    <div class="card-body">
+
+        <!-- nro., forma de envio ,fecha de entrega -->
+        <div class="row g-3">
+            <div id="lblnrosolicitud" class="col col-xs-12 col-md-4 col-lg-4 col-xl-4" hidden>
+                <label>Nro. Pedido</label>
+                </div>
+                <div  class="col col-xs-12 col-md-4 col-lg-4 col-xl-4">
+                  <label>Empresa:</label>
+              </div>
+                <div  class="col col-xs-12 col-md-4 col-lg-4 col-xl-4">
+                  <label>Forma de Envio: Por Cuenta del Vendedores</label>
+              </div>
+              <div  class="col col-xs-12 col-md-4 col-lg-4 col-xl-4">
+                <label>Fecha: 11/11/2024</label>
+            </div>
+          </div>
+            <!--  -->
+
+        <!-- Seleccionar nro solicitud, Fecha Solicitud entrega, fecha plazo -->
+        <div class="row g-3 mt-4">
+        <div class="col col-md-12">
+          <div class="card">
+            <div class="card-header">Buscar Solicitud Interno</div>
+            <div class="card-body">
+
+              <div class="row">
+                <div class="col col-md-2">
+                  <label for="txtnrosolicitudinterno">Nro. de Solicitud</label>
+              </div>
+              <div class="col col-md-2">
+                <input type="text" class="form-control" id="txtnrosolicitudinterno">
+              </div>
+      
+      
+                <div class="col col-md-2">
+                  <label for="fechasolicitudentregaplazo">Fecha Solicitud Entrega</label>
+              </div>
+              <div class="col col-md-2">
+                <input type="date" class="form-control" id="fechasolicitudentregaplazo">
+              </div>
+                <div class="col col-md-2">
+                    <label for="txtfechaentrega">Fecha plazo entrega pedido</label>
+                </div>
+                <div class="col col-md-2">
+                  <input type="date" class="form-control" id="txtfechaentrega">
+                </div>
+            </div>
+
+
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+          
+
+      
+      <!--  -->
+
+      <!--Informacion de Insumo -->
+      <div class="row g-3  mt-4">
+        <div class="col col-md-12">
+          <div class="card">
+            <div class="card-header">
+              <h5>Informacion de Insumos</h5>
+              <div class="col col-md-offset-1"></div>
+              <div class="col col-md-1">
+                <button type="button" class="btn btn-success">Ver/Oculta</button>
+
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+        <!-- Informacion Pedidos -->
+        <div class="row mt-4">
+            <div class="col col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="row g-3">
+                            <h5>Información Pedido</h5>
+                            <div class="col col-md-offset-1"></div>
+                            <div class="col col-md-2">
+                              <button type="button" id="btn_crear_pedido" class="btn btn-success">Crear Pedido</button>
+                            </div>
+                       
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <table class="table" id="tblinsumo">
+                            <thead>
+                              <tr>
+                                <th scope="col">Insumo</th>
+                                <th scope="col">Unidad de Medida</th>
+                                <th scope="col">Impuesto</th>
+                                <th scope="col">Cantidad</th>
+                                <th scope="col">Acciones</th>
+                              </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--  -->
+
+    </div>
+    <!--  -->
+
+    <div class="card-footer">
+        <button type="button" id="btnregistrar" class="btn btn-primary">Registrar</button>
+        <button type="button" id="btn_volver" class="btn btn-info">Volver</button>
+    </div>
+</div>
+
+{{ pintar_alerta(messages) }}
+{% endblock %}
+
+{% block mi_javascript %}
+<script>
+
+  // proviene del servidor
+  // const data_from_server = {
+  //   url_nueva_solicitud : '{{ url_for("rscmod.registrar_solicitud_compra") }}'
+  //   ,insumos: {{ lista_insumos|tojson }}
+  //   ,index_registrar_solicitud_compras: '{{ url_for("rscmod.index_registrar_solicitud_compras") }}'
+
+  // }
+
+  // const extra_settings_select2 = {
+  //   placeholder: "Buscar item",
+  //   theme: 'bootstrap-5'
+  // }
+
+  // const tr = ({ id, descripcion, unidad_medida, impuesto }) => `
+  //   <tr data-id="${id}" class="tr_detalle_insumo">
+  //     <td>${id} | ${descripcion}</td>
+  //     <td>${unidad_medida}</td>
+  //     <td>${impuesto}</td>
+  //     <td>
+  //       <input type="number" name="txt_cantidad_insumo" class="form-control">
+  //     </td>
+  //     <td>
+  //       <button type="button" class="eliminar btn btn-warning btn-sm">Eliminar Item</button>
+  //     </td>
+  //   </tr>
+  // `;
+
+  // $(function(){
+  //   $('select[name="selfuncionario"], select[name="selprioridad"], select[name="selinsumo"]').select2(extra_settings_select2);
+  //   $('select[name="selfuncionario"]').on('change', function(){
+  //     if(!$(this).val()) {
+  //       $('#tblfuncionario').find('td').text('');
+  //       return;
+  //     }
+  //     fetch(`/gestionar-compras/registrar-solicitud-compras/v1/get-funcionario-by-id/${$(this).val()}`)
+  //       .then(resp => resp.json())
+  //       .then(funcionario => {
+  //         $('#tdcedula').text(funcionario.ci);
+  //         $('#tdnombres').text(`${funcionario.nombres} ${funcionario.apellidos}`);
+  //         $('#tdcargo').text(funcionario.cargo);
+  //         $('#tddepartamento').text(funcionario.departamento);
+  //       })
+  //       .catch(err => console.error(err));
+
+  //   });
+
+  //   let acumular_insumos = [];
+  //   $('select[name="selinsumo"]').on('select2:closing', function(e){
+  //     const id_insumo = $('select[name="selinsumo"]').val() ? Number($('select[name="selinsumo"]').val()) : 0;
+  //     const { insumos } = data_from_server;
+  //     const insumo_encontrado = insumos.find(item => item.id === id_insumo);
+  //     if(acumular_insumos.includes(insumo_encontrado.id)) {
+  //       alert("Este elemento ya existe en el detalle");
+  //       $('select[name="selinsumo"]').val(null).trigger('change');
+  //       return;
+  //     }
+  //     acumular_insumos.push(insumo_encontrado.id);
+  //     $('#tblinsumo tbody').append(tr(insumo_encontrado));
+  //     $('select[name="selinsumo"]').val(null).trigger('change');
+  //   });
+
+  //   $('#tblinsumo tbody').on('keypress', 'input[name="txt_cantidad_insumo"]', function(e) {
+  //     if(e.key === "Enter") {
+  //       const cantidad = $(this).val() ? parseFloat($(this).val()) : 0.0;
+  //       if(cantidad < 0) {
+  //         alert("No se admiten números negativos");
+  //         $(this).val(null);
+  //         return;
+  //       }
+  //     }
+  //   }).on('click', '.eliminar', function() {
+  //     const id_insumo = Number($(this).closest('tr').data('id'));
+  //     acumular_insumos = acumular_insumos.filter(item => item !== id_insumo);
+  //     const tr = $(this).closest('tr').remove();
+  //   });
+
+  //   $('#btnregistrar').on('click', function() {
+  //     const id_estado = 1;
+  //     const id_funcionario = $('select[name="selfuncionario"]').val();
+  //     const id_prioridad = $('select[name="selprioridad"]').val();
+	//   const fecha_entrega = $('#txtfechaentrega').val();
+
+	//   const arrayErrores = [];
+	//   if(!id_funcionario) {
+	// 	arrayErrores.push('funcionario');
+	//   }
+	//   if(!id_prioridad) {
+	// 	arrayErrores.push('prioridad');
+	//   }
+
+	//   if(!fecha_entrega) {
+	// 	arrayErrores.push('fecha de entrega');
+	//   }
+
+	//   if(arrayErrores.length > 0) {
+	// 	alert(`Hay errores en ${arrayErrores.join()}`);
+	// 	return;
+	//   }
+  //     /** detalle _solicitud
+  //       id_solicitud: generar en el backend
+  //       id_insumo
+  //       cantidad
+  //     */
+	//   const nro_filas_tabla = $('#tblinsumo tbody >').toArray().length;
+	//   if(nro_filas_tabla ===0 ) {
+	// 	alert("Debes agregar items al detalle");
+	// 	return;
+	//   } else {
+	// 	const elemento_tr = $('#tblinsumo tbody > tr').toArray();
+	// 	for(item of elemento_tr) {
+	// 		const cantidad = Number($(item).find('input').val());
+	// 		if(!cantidad) {
+	// 			alert("Elementos en el detalle no puede estar vacios");
+	// 			return;
+
+	// 		}
+	// 	};
+
+	//   }
+ 
+  //     let detalle_insumo = [];
+	//   $('#tblinsumo tbody > tr').toArray().forEach((e) =>{
+	// 	detalle_insumo.push({
+	// 		id_insumo: Number($(e).data('id'))
+	// 		, cantidad: Number($(e).find('input').val())
+	// 		});
+	// 	});
+	// 	console.log({
+	// 		  id_estado: id_estado
+	// 		, id_funcionario: id_funcionario
+	// 		, id_prioridad: id_prioridad
+	// 		, fecha_entrega: fecha_entrega
+	// 		, detalle_insumo: detalle_insumo
+	// 	});
+
+  //         fetch(data_from_server.url_nueva_solicitud, {
+  //           method: 'POST'
+  //           , headers: {
+  //             'Content-Type': 'application/json'
+  //           }
+  //           , body: JSON.stringify({
+  //                   id_estado: id_estado
+  //                   , id_funcionario: id_funcionario
+  //                   , id_prioridad: id_prioridad
+  //                   , fecha_entrega: fecha_entrega
+  //                 , detalle_insumo: detalle_insumo
+  //                 })
+  //         })
+  //         .then(resp => resp.json())
+  //         .then(data => {
+  //           if(data && !data.error && data.success){
+  //             alert(data.success);
+  //           } else {
+  //             alert(data.error);
+  //           }
+  //         })
+  //         .catch(err => alert(err));
+  //       });
+
+  //       $('#btn_volver').on('click', function(){
+  //         location.replace(data_from_server.index_registrar_solicitud_compras);
+  //       })
+  // });
+
+
+</script>
+{% endblock %}

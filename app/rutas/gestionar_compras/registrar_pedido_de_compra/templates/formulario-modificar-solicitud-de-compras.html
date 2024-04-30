@@ -1,0 +1,380 @@
+{% extends "base.html" %}
+{% from 'macros.html' import pintar_alerta %}
+
+{% block titulo_pagina %}Registrar solicitud de compras{% endblock %}
+
+{% block dinamico %}
+
+<div class="card">
+    <div class="card-header">Registrar Solicitud de compras</div>
+
+    <!-- card main -->
+    <div class="card-body">
+
+        <!-- nro., fecha ,estado solicitud -->
+        <div class="row g-3">
+            <div id="lblnrosolicitud" class="col col-xs-12 col-md-3 col-lg-3 col-xl-3">
+                <label>Nro. Solicitud:<b> {{ solicitud['nro_solicitud'] }} </b></label>
+            </div>
+            <div class="col col-xs-12 col-md-2 col-lg-2 col-xl-2">
+                <label>Estado solicitud</label>
+            </div>
+            <div class="col col-xs-12 col-md-3 col-lg-3 col-xl-3">
+              <select class="form-control" name="selestado">
+                <option value=""></option>
+                {% if estados|length > 0 %}
+                  {% for item in estados %}
+                      {% if solicitud['id_estado'] == item[0] %}
+                      <option value="{{ item['id'] }}" selected>{{ item['descripcion'] }}</option>
+                        {% else %}
+                        <option value="{{ item['id'] }}">{{ item['descripcion'] }}</option>
+                      {% endif %}
+                  {% endfor %}
+                {% endif %}
+              </select>
+            </div>
+            <div class="col col-md-1">
+              <label for="txtruc">Prioridad</label>
+            </div>
+            <div class="col col-md-3">
+              <select class="form-control" name="selprioridad">
+                <option value="" ></option>
+                {% if lista_prioridades|length > 0 %}
+                  {% for item in lista_prioridades %}
+                      {% if solicitud['id_prioridad'] == item['id'] %}
+                      <option value="{{ item['id'] }}" selected>{{ item['descripcion'] }}</option>
+                        {% else %}
+                        <option value="{{ item['id'] }}">{{ item['descripcion'] }}</option>
+                      {% endif %}
+                  {% endfor %}
+                {% endif %}
+              </select>
+            </div>
+        </div>
+        <!--  -->
+
+        <!-- prioridad y fecha de entrega -->
+        <div class="row g-3 mt-4">
+
+          <div class="col col-md-2">
+              <label for="txtfechaentrega">Fecha de entrega</label>
+          </div>
+          <div class="col col-md-3">
+            <input type="date" class="form-control" id="txtfechaentrega" value="{{ solicitud['fecha_entrega'] }}">
+          </div>
+      </div>
+      <!--  -->
+
+        <!-- Datos del Solicitante -->
+        <div class="row mt-4">
+            <div class="col col-md-12">
+                <div class="card">
+                    <div class="card-header">Datos del Solicitante</div>
+                    <div class="card-body">
+
+                        <!-- cod. funcionario, cedula, cargo -->
+                        <div class="row g-3 align-items-center">
+                            <div class="col"></div>
+                            <div class="col col-md-6 mb-4">
+                              <select class="form-control" name="selfuncionario">
+                                <option value="" selected></option>
+                                {% if lista_funcionarios|length > 0 %}
+                                  {% for item in lista_funcionarios %}
+                                      {% if solicitud['id_funcionario'] == item['id'] %}
+                                      <option value="{{ item['id'] }}" selected>{{ item['ci'] }} - {{ item['nombres'] }} {{ item['apellidos'] }}</option>
+                                      {% else %}
+                                      <option value="{{ item['id'] }}">{{ item['ci'] }} - {{ item['nombres'] }} {{ item['apellidos'] }}</option>
+
+                                      {% endif %}
+                                  {% endfor %}
+                                {% endif %}
+                              </select>
+                            </div>
+                            <div class="col"></div>
+                        </div>
+                        <!--  -->
+
+                        <!-- nombres, apellidos, departamento -->
+                        <div class="row g-3">
+                            <div class="col col-md-12">
+                              <table class="table table-striped table-hover" id="tblfuncionario">
+                                  <tr>
+                                    <th scope="row" class="table-dark text-center">Cedula</th>
+                                    <th scope="row" class="text-center" colspan="2" id="tdcedula"></th>
+                                  </tr>
+                                  <tr>
+                                    <th scope="row" class="table-dark text-center">Nombres y Apellidos</th>
+                                    <td colspan="2" class="text-center" id="tdnombres"></td>
+                                  </tr>
+                                  <tr>
+                                    <th scope="row" class="table-dark text-center">Cargo</th>
+                                    <td colspan="2" class="text-center" id="tdcargo"></td>
+                                  </tr>
+                                  <tr>
+                                    <th scope="row" class="table-dark text-center">Departamento</th>
+                                    <td colspan="2" class="text-center" id="tddepartamento"></td>
+                                  </tr>
+                              </table>
+                            </div>
+                        </div>
+                        <!--  -->
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--  -->
+
+        <!-- Información insumos -->
+        <div class="row mt-4">
+            <div class="col col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="row g-3">
+                            <h5>Información insumos</h5>
+                            <div class="col col-md-offset-1"></div>
+                            <div class="col col-md-1">
+                                <label for="txtruc">Agregar</label>
+                            </div>
+                            <div class="col col-md-7">
+                              <select class="form-control" name="selinsumo">
+                                <option value="" ></option>
+                                {% if lista_insumos|length > 0 %}
+                                  {% for item in lista_insumos %}
+                                      <option value="{{ item['id'] }}">{{ item['id'] }} | {{ item['descripcion'] }} | {{ item['costo'] }} | {{ item['marca'] }} | {{ item['tipo_insumo'] }} | {{ item['unidad_medida'] }}</option>
+                                  {% endfor %}
+                                {% endif %}
+                              </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <table class="table" id="tblinsumo">
+                            <thead>
+                              <tr>
+                                <th scope="col">Insumo</th>
+                                <th scope="col">Unidad de Medida</th>
+                                <th scope="col">Cantidad</th>
+                                <th scope="col">Acciones</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {% for item in solicitud['detalle_insumo'] %}
+
+                              <tr data-id="{{ item['id_insumo'] }}" class="tr_detalle_insumo">
+                                <td>{{ item['id_insumo'] }} | {{ item['insumo'] }} </td>
+                                <td>{{ item['unidad_medida'] }}</td>
+                                <td>
+                                  <input type="number" name="txt_cantidad_insumo" class="form-control" value="{{ item['cantidad'] }}">
+                                </td>
+                                <td>
+                                  <button type="button" class="eliminar btn btn-warning btn-sm">Modificar Item</button>
+                                </td>
+                              </tr>
+
+                              {% endfor %}
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--  -->
+
+    </div>
+    <!--  -->
+
+    <div class="card-footer">
+        <button type="button" id="btnregistrar" class="btn btn-primary">Registrar</button>
+        <button type="button" id="btn_volver" class="btn btn-info">Volver</button>
+    </div>
+</div>
+
+{{ pintar_alerta(messages) }}
+{% endblock %}
+
+{% block mi_javascript %}
+<script>
+
+  // proviene del servidor
+  const data_from_server = {
+    id_solicitud: {{ solicitud['id_solicitud'] }},
+    id_estado: {{ solicitud['id_estado'] }}
+    ,url_modificar_solicitud: '{{ url_for("rscmod.modificar_solicitud_compra") }}'
+    ,index_registrar_solicitud_compras: '{{ url_for("rscmod.index_registrar_solicitud_compras") }}'
+    ,insumos: {{ lista_insumos|tojson }}
+  }
+
+  const extra_settings_select2 = {
+    placeholder: "Buscar item",
+    theme: 'bootstrap-5'
+  }
+
+  const tr = ({ id, descripcion, unidad_medida, impuesto }) => `
+    <tr data-id="${id}" class="tr_detalle_insumo">
+      <td>${id} | ${descripcion}</td>
+      <td>${unidad_medida}</td>
+      <td>
+        <input type="number" name="txt_cantidad_insumo" class="form-control">
+      </td>
+      <td>
+        <button type="button" class="eliminar btn btn-warning btn-sm">Modificar Item</button>
+      </td>
+    </tr>
+  `;
+
+  $(function(){
+    $('select[name="selfuncionario"], select[name="selprioridad"], select[name="selinsumo"],select[name="selestado"] ').select2(extra_settings_select2);
+    $('select[name="selfuncionario"]').on('change', function(){
+      if(!$(this).val()) {
+        $('#tblfuncionario').find('td').text('');
+        return;
+      }
+      fetch(`/gestionar-compras/registrar-solicitud-compras/v1/get-funcionario-by-id/${$(this).val()}`)
+        .then(resp => resp.json())
+        .then(funcionario => {
+          $('#tdcedula').text(funcionario.ci);
+          $('#tdnombres').text(`${funcionario.nombres} ${funcionario.apellidos}`);
+          $('#tdcargo').text(funcionario.cargo);
+          $('#tddepartamento').text(funcionario.departamento);
+        })
+        .catch(err => console.error(err));
+
+    });
+    $('select[name="selfuncionario"]').trigger('change');
+    let acumular_insumos = [
+      {% for item in solicitud['detalle_insumo'] %}
+          {{ item['id_insumo'] }},
+        {% endfor %}
+      ];
+    $('select[name="selinsumo"]').on('select2:closing', function(e){
+      const id_insumo = $('select[name="selinsumo"]').val() ? Number($('select[name="selinsumo"]').val()) : 0;
+      const { insumos } = data_from_server;
+      const insumo_encontrado = insumos.find(item => item.id === id_insumo);
+      if(acumular_insumos.includes(insumo_encontrado.id)) {
+        alert("Este elemento ya existe en el detalle");
+        $('select[name="selinsumo"]').val(null).trigger('change');
+        return;
+      }
+      acumular_insumos.push(insumo_encontrado.id);
+      $('#tblinsumo tbody').append(tr(insumo_encontrado));
+      $('select[name="selinsumo"]').val(null).trigger('change');
+    });
+
+    $('#tblinsumo tbody').on('keypress', 'input[name="txt_cantidad_insumo"]', function(e) {
+      if(e.key === "Enter") {
+        const cantidad = $(this).val() ? parseFloat($(this).val()) : 0.0;
+        if(cantidad < 0) {
+          alert("No se admiten números negativos");
+          $(this).val(null);
+          return;
+        }
+      }
+    }).on('click', '.eliminar', function() {
+      const id_insumo = Number($(this).closest('tr').data('id'));
+      acumular_insumos = acumular_insumos.filter(item => item !== id_insumo);
+      const tr = $(this).closest('tr').remove();
+    });
+
+    $('#btnregistrar').on('click', function() {
+      const id_estado =  $('select[name="selestado"]').val();
+      const id_funcionario = $('select[name="selfuncionario"]').val();
+      const id_prioridad = $('select[name="selprioridad"]').val();
+	  const fecha_entrega = $('#txtfechaentrega').val();
+
+	  const arrayErrores = [];
+    if(!id_estado) {
+      arrayErrores.push('estado');
+      }
+
+	  if(!id_funcionario) {
+		arrayErrores.push('funcionario');
+	  }
+	  if(!id_prioridad) {
+		arrayErrores.push('prioridad');
+	  }
+
+	  if(!fecha_entrega) {
+		arrayErrores.push('fecha de entrega');
+	  }
+
+	  if(arrayErrores.length > 0) {
+		alert(`Hay errores en ${arrayErrores.join()}`);
+		return;
+	  }
+      /** detalle _solicitud
+        id_solicitud: generar en el backend
+        id_insumo
+        cantidad
+      */
+	  const nro_filas_tabla = $('#tblinsumo tbody >').toArray().length;
+	  if(nro_filas_tabla ===0 ) {
+		alert("Debes agregar items al detalle");
+		return;
+	  } else {
+		const elemento_tr = $('#tblinsumo tbody > tr').toArray();
+		for(item of elemento_tr) {
+			const cantidad = Number($(item).find('input').val());
+			if(!cantidad) {
+				alert("Elementos en el detalle no puede estar vacios");
+				return;
+
+			}
+		};
+
+	  }
+ 
+      let detalle_insumo = [];
+	  $('#tblinsumo tbody > tr').toArray().forEach((e) =>{
+		detalle_insumo.push({
+			id_insumo: Number($(e).data('id'))
+			, cantidad: Number($(e).find('input').val())
+			});
+		});
+		console.log({
+			  id_estado: id_estado
+			, id_funcionario: id_funcionario
+			, id_prioridad: id_prioridad
+			, fecha_entrega: fecha_entrega
+			, detalle_insumo: detalle_insumo
+		});
+
+          fetch(data_from_server.url_modificar_solicitud, {
+            method: 'PUT'
+            , headers: {
+              'Content-Type': 'application/json'
+            }
+            , body: JSON.stringify({
+                    id_solicitud: data_from_server.id_solicitud
+                    , id_estado: id_estado
+                    , id_funcionario: id_funcionario
+                    , id_prioridad: id_prioridad
+                    , fecha_entrega: fecha_entrega
+                  , detalle_insumo: detalle_insumo
+                  })
+          })
+          .then(resp => resp.json())
+          .then(data => {
+            if(data && !data.error && data.success){
+              alert(data.success);
+              location.replace(data_from_server.index_registrar_solicitud_compras)
+            } else {
+              alert(data.error);
+            }
+          })
+          .catch(err => alert(err));
+        });
+
+        $('#btn_volver').on('click', function(){
+          location.replace(data_from_server.index_registrar_solicitud_compras);
+        })
+        //estado:utilizado
+        if(data_from_server.id_estado === 4) {
+          $('select,input,button').attr('disabled', true);
+        }
+  });
+
+
+</script>
+{% endblock %}
