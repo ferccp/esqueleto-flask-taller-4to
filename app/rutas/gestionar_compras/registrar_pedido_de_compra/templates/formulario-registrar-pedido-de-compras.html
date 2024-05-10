@@ -37,10 +37,20 @@
 
               <div class="row">
                 <div class="col col-md-2">
-                  <label for="txtnrosolicitudinterno">Nro. de Solicitud</label>
+                  <label for="selNroSolicitud">Nro. de Solicitud</label>
               </div>
               <div class="col col-md-2">
-                <input type="text" class="form-control" id="txtnrosolicitudinterno">
+                <select class="form-control" name="selNroSolicitud">
+                  <option value="" selected></option>
+                  
+                  {% if listado_solicitudes_pendientes |length > 0 %}
+                    {% for item in listado_solicitudes_pendientes %}
+                        <option value="{{ item['id_solicitud'] }}">{{ item['nro_solicitud'] }} - {{ item['departamento'] }}</option>
+                    {% endfor %}
+                  {% endif %}
+                  
+                </select>
+
               </div>
       
       
@@ -69,25 +79,34 @@
 
       
       <!--  -->
-
-      <!--Informacion de Insumo -->
-      <div class="row g-3  mt-4">
-        <div class="col col-md-12">
-          <div class="card">
-            <div class="card-header">
-              <h5>Informacion de Insumos</h5>
-              <div class="col col-md-offset-1"></div>
-              <div class="col col-md-1">
-                <button type="button" class="btn btn-success">Ver/Oculta</button>
-
+  <!--Informacion de Insumo -->
+        <div class="row mt-4">
+          <div class="col col-md-12">
+              <div class="card">
+                  <div class="card-header">
+                    <div class="row g-3">
+                      <h5>Información Pedido</h5>
+                      <div class="col col-md-offset-1">
+                        <button type="button" id="btn_crear_pedido" class="btn btn-success">Ocultar/Mostrar</button>
+                      </div>
+                  </div>
+                  </div>
+                  <div class="card-body">
+                      <div class="table-responsive">
+                          <table class="table table-collapse" id="tbldetallepedido">
+                              <thead class="sticky-top">
+                                  <tr>
+                                      <th scope="col" style="width: 33.33%;">Insumo</th>
+                                      <th scope="col" style="width: 33.33%;">Unidad de Medida</th>
+                                      <th scope="col" style="width: 33.33%;">Cantidad</th>
+                                  </tr>
+                              </thead>
+                              <tbody></tbody>
+                          </table>
+                      </div>
+                  </div>
               </div>
-
-            </div>
-
           </div>
-
-        </div>
-
       </div>
 
 
@@ -125,7 +144,7 @@
         <!--  -->
 
     </div>
-    <!--  -->
+    <!-- alt 96 ` -->
 
     <div class="card-footer">
         <button type="button" id="btnregistrar" class="btn btn-primary">Registrar</button>
@@ -139,11 +158,64 @@
 {% block mi_javascript %}
 <script>
 
+  const extra_settings_select2 = {
+    placeholder: "Buscar item",
+    theme: 'bootstrap-5'
+  }
+
+  $(function(){
+    $('select[name="selNroSolicitud"]').select2(extra_settings_select2);
+    $('select[name="selNroSolicitud"]').on('change', function(){
+      if(!$(this).val()) {
+        $('#tbldetallepedido').find('td').text('');
+
+        return;
+      }
+      fetch(`/gestionar-compras/registrar-pedido-compras/v1/get-solicitud-by-id/${$(this).val()}`)
+        .then(resp => resp.json())
+        .then(pedido => {
+
+          $('#fechasolicitudentregaplazo').val(pedido.fecha_entrega);
+
+    
+          $('#tbldetallepedido tbody').empty();
+
+          const tableBody = $('#tbldetallepedido tbody');
+
+          $.each(pedido.detalle_insumo, function(index, detaPedido) {
+              // Create a new table row using jQuery
+              const fila = $('<tr>');
+              
+              // Create and append cells with content using template literals
+              fila.append(
+                  $('<td>').text(detaPedido.insumo),
+                  $('<td>').text(detaPedido.unidad_medida),
+                  $('<td>').text(detaPedido.cantidad)
+              );
+              
+              // Append the completed row to the table body
+              tableBody.append(fila);
+            
+          })
+
+
+
+
+        })
+        .catch(err => console.error(err));
+
+    });
+  });
+  
+
   // proviene del servidor
   // const data_from_server = {
   //   url_nueva_solicitud : '{{ url_for("rscmod.registrar_solicitud_compra") }}'
   //   ,insumos: {{ lista_insumos|tojson }}
   //   ,index_registrar_solicitud_compras: '{{ url_for("rscmod.index_registrar_solicitud_compras") }}'
+
+
+
 
   // }
 

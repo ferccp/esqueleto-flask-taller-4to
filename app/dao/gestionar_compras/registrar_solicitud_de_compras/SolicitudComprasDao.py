@@ -32,6 +32,52 @@ class SolicitudCompraDetalledto:
     
 
 class SolicitudComprasDao:
+    def getSolcitudesPendientes(self):
+        querySQL = """
+        SELECT id_solicitud,
+		nro_solicitud, 
+	    sc.id_estado,
+		e.descripcion as estado,
+		sc.id_prioridad,p.descripcion as prioridad,
+		sc.fecha_entrega,
+		f.id_departamento,
+		d.descripcion as departamento,
+		f.id_cargo,
+		c.descripcion  as cargo
+FROM public.solicitud_de_compra sc
+left join estados e on e.id = sc.id_estado
+left join funcionarios f on f.id = sc.id_funcionario  
+left join cargos c on c.id = f.id_cargo 
+left join departamento d on d.id = f.id_departamento 
+left join prioridades p on p.id = sc.id_prioridad where  id_estado = 1
+        """
+        conexion = Conexion()
+        con = conexion.getConexion()
+        cur = con.cursor()
+        try:
+            cur.execute(querySQL)
+            lista = cur.fetchall()
+            return  [{ 
+                'id_solicitud': item[0]
+                ,'nro_solicitud': item[1]
+                ,'id_estado': item[2]
+                ,'estado': item[3]
+                ,'id_prioridad': item[4]
+                ,'prioridad': item[5]
+                ,'fecha_entrega': item[6]
+                ,'id_departamento': item[7]
+                ,'departamento': item[8]
+                ,'id_cargo': item[9]
+                ,'cargo': item[10]
+            }for item in lista] if lista else []
+        except con.Error as e:
+            app.logger.error(e)
+        finally:
+            cur.close()
+            con.close()
+        return []
+    
+
     def getSolcitudes(self):
         querySQL = """
         SELECT id_solicitud,

@@ -21,17 +21,19 @@ solicitud_dao = SolicitudComprasDao()
 @rpcmod.route('/index-registrar-solicitud-compras')
 def index_registrar_solicitud_compras():
 		url_modificar = '/gestionar-compras/registrar-solicitud-compras/formulario-modificar-solicitud-compras'
-		lista_solicitudes = solicitud_dao.getSolcitudes()
+		lista_solicitudes = solicitud_dao.getSolcitudesPendientes()
 		if len(lista_solicitudes) < 0:
 			flash('No hay solicitudes registradas', 'warning')
 		return render_template('index-registrar-solicitud-de-compras.html', lista_solicitudes = lista_solicitudes, url_modificar = url_modificar)
 
 @rpcmod.route('/formulario-registrar-pedido-compras')
 def formulario_registrar_solicitud_compras():
-		return render_template('formulario-registrar-pedido-de-compras.html',estados = estado.getEsatdo(), \
+	lista_solicitudes_pendientes = solicitud_dao.getSolcitudesPendientes()
+	
+	return render_template('formulario-registrar-pedido-de-compras.html',estados = estado.getEsatdo(), \
 								lista_funcionarios = funci.getFuncionario(), \
 								lista_prioridades = prio.getPrioridades(), \
-								lista_insumos = insumo.getInsumos())
+								lista_insumos = insumo.getInsumos(),listado_solicitudes_pendientes = lista_solicitudes_pendientes)
 
 
 
@@ -47,6 +49,11 @@ def formulario_modificar_solicitud_compras(id_solicitud):
 
 
 # REST 
+# Obtener solicitud de Compra
+@rpcmod.route('/v1/get-solicitud-by-id/<id>')
+def get_solicitudo_by_id(id):
+		return solicitud_dao.getSolcitudById(id), 200
+
 
 @rpcmod.route('/v1/get-funcionario-by-id/<id>')
 def get_funcionario_by_id(id):
