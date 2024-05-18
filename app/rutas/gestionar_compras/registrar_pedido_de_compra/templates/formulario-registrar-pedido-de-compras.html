@@ -5,6 +5,8 @@
 
 {% block dinamico %}
 
+
+
 <div class="card">
     <div class="card-header">Registrar pedido de compras Empresa:Iris </div>
 
@@ -85,9 +87,9 @@
               <div class="card">
                   <div class="card-header">
                     <div class="row g-3">
-                      <h5>Información Pedido</h5>
+                      <h5>Detalle solcitud</h5>
                       <div class="col col-md-offset-1">
-                        <button type="button" id="btn_crear_pedido" class="btn btn-success">Ocultar/Mostrar</button>
+                        <button type="button" id="btn_ocultar" class="btn btn-success">Ocultar/Mostrar</button>
                       </div>
                   </div>
                   </div>
@@ -116,7 +118,7 @@
                 <div class="card">
                     <div class="card-header">
                         <div class="row g-3">
-                            <h5>Información Pedido</h5>
+                            <h5>Pedidos externos</h5>
                             <div class="col col-md-offset-1"></div>
                             <div class="col col-md-2">
                               <button type="button" id="btn_crear_pedido" class="btn btn-success">Crear Pedido</button>
@@ -130,7 +132,6 @@
                               <tr>
                                 <th scope="col">Insumo</th>
                                 <th scope="col">Unidad de Medida</th>
-                                <th scope="col">Impuesto</th>
                                 <th scope="col">Cantidad</th>
                                 <th scope="col">Acciones</th>
                               </tr>
@@ -150,7 +151,70 @@
         <button type="button" id="btnregistrar" class="btn btn-primary">Registrar</button>
         <button type="button" id="btn_volver" class="btn btn-info">Volver</button>
     </div>
+
+
+    <!-- Modal Structure -->
+    <div class="modal fade" id="providerModal" tabindex="-1" role="dialog" aria-labelledby="providerModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="providerModalLabel">Crear Pedidos</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="form-row align-items-center">
+              <div class="col-md-5">
+                <label for="selecionProve">Seleccione Proveedor</label>
+              </div>
+              <div class="col-md-7">
+                <select class="form-control" name="selecionProve" id="selecionProve">
+                  <option value="" selected></option>
+                  
+                  {% if lista_proveedor |length > 0 %}
+                    {% for item in lista_proveedor %}
+                        <option value="{{ item['id'] }}"> Ruc: {{ item['ruc'] }} - {{ item['ruc_nro_identificador'] }}  {{ item['razon_social'] }}</option>
+                    {% endfor %}
+                  {% endif %}
+                  
+                </select>
+              </div>
+            </div>
+            <table class="table table-bordered">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Nombre</th>
+                  <th>Contacto</th>
+                </tr>
+              </thead>
+              <tbody id="providerTable">
+                <tr>
+                  <td>1</td>
+                  <td>Proveedor A</td>
+                  <td>contactoA@example.com</td>
+                </tr>
+                <tr>
+                  <td>2</td>
+                  <td>Proveedor B</td>
+                  <td>contactoB@example.com</td>
+                </tr>
+                <!-- Add more provider rows as needed -->
+              </tbody>
+            </table>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p>{{ lista_proveedor }}</p>
+
 </div>
+
+
 
 {{ pintar_alerta(messages) }}
 {% endblock %}
@@ -163,8 +227,14 @@
     theme: 'bootstrap-5'
   }
 
+  const pedidoInterno = {
+    pedidoSeleccionado: null
+  };
+
   $(function(){
-    $('select[name="selNroSolicitud"]').select2(extra_settings_select2);
+    $('select[name="selNroSolicitud"], select[name="selecionProve"]').select2(extra_settings_select2);
+    $('select[name="selNroSolicitud"], select[name="selecionProve"]').val('').trigger('change');
+
     $('select[name="selNroSolicitud"]').on('change', function(){
       if(!$(this).val()) {
         $('#tbldetallepedido').find('td').text('');
@@ -181,7 +251,7 @@
           $('#tbldetallepedido tbody').empty();
 
           const tableBody = $('#tbldetallepedido tbody');
-
+          pedidoInterno.pedidoSeleccionado = pedido;
           $.each(pedido.detalle_insumo, function(index, detaPedido) {
               // Create a new table row using jQuery
               const fila = $('<tr>');
@@ -195,7 +265,7 @@
               
               // Append the completed row to the table body
               tableBody.append(fila);
-            
+             
           })
 
 
@@ -205,8 +275,16 @@
         .catch(err => console.error(err));
 
     });
+
+    $('#btn_crear_pedido').on('click', function() {
+      //crear modal 
+      $('#providerModal').modal('show');
+
+
+    });
   });
-  
+
+
 
   // proviene del servidor
   // const data_from_server = {

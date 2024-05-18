@@ -5,7 +5,7 @@ from app.dao.referencial.funcionario.FuncionarioDao import FuncionarioDao
 from app.dao.referencial.prioridad.PrioridadDao import PrioridadDao
 from app.dao.referencial.insumos.InsumoDao import InsumoDao
 from app.dao.gestionar_compras.registrar_solicitud_de_compras.SolicitudComprasDao import SolicitudComprasDao,SolicitudCompraDetalledto,SolcitudCompradto
-
+from app.dao.referencial.proveedor.ProveedorDao import ProveedorDao
 
 
 rpcmod = Blueprint('rpcmod',__name__, template_folder='templates')
@@ -15,6 +15,7 @@ funci = FuncionarioDao()
 prio = PrioridadDao()
 insumo = InsumoDao()
 solicitud_dao = SolicitudComprasDao()
+proveedor_dao = ProveedorDao()
 
 
 
@@ -33,7 +34,9 @@ def formulario_registrar_solicitud_compras():
 	return render_template('formulario-registrar-pedido-de-compras.html',estados = estado.getEsatdo(), \
 								lista_funcionarios = funci.getFuncionario(), \
 								lista_prioridades = prio.getPrioridades(), \
-								lista_insumos = insumo.getInsumos(),listado_solicitudes_pendientes = lista_solicitudes_pendientes)
+								lista_insumos = insumo.getInsumos(), \
+							    lista_proveedor = proveedor_dao.getProveedores() , \
+								listado_solicitudes_pendientes = lista_solicitudes_pendientes)
 
 
 
