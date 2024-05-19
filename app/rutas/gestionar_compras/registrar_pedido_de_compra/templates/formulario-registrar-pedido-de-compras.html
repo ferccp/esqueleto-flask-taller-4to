@@ -153,63 +153,81 @@
     </div>
 
 
-    <!-- Modal Structure -->
-    <div class="modal fade" id="providerModal" tabindex="-1" role="dialog" aria-labelledby="providerModalLabel" aria-hidden="true">
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="providerModalLabel">Crear Pedidos</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
+    <!-- Alata de Pedidos -->
+<div class="modal fade" id="providerModal" tabindex="-1" role="dialog" aria-labelledby="providerModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="providerModalLabel">Crear Pedidos</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-row align-items-center">
+          <div class="col-md-5">
+            <label for="selecionProve">Seleccione Proveedor</label>
           </div>
-          <div class="modal-body">
-            <div class="form-row align-items-center">
-              <div class="col-md-5">
-                <label for="selecionProve">Seleccione Proveedor</label>
-              </div>
-              <div class="col-md-7">
-                <select class="form-control" name="selecionProve" id="selecionProve">
-                  <option value="" selected></option>
-                  
-                  {% if lista_proveedor |length > 0 %}
-                    {% for item in lista_proveedor %}
-                        <option value="{{ item['id'] }}"> Ruc: {{ item['ruc'] }} - {{ item['ruc_nro_identificador'] }}  {{ item['razon_social'] }}</option>
-                    {% endfor %}
-                  {% endif %}
-                  
-                </select>
-              </div>
-            </div>
-            <table class="table table-bordered">
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Nombre</th>
-                  <th>Contacto</th>
-                </tr>
-              </thead>
-              <tbody id="providerTable">
-                <tr>
-                  <td>1</td>
-                  <td>Proveedor A</td>
-                  <td>contactoA@example.com</td>
-                </tr>
-                <tr>
-                  <td>2</td>
-                  <td>Proveedor B</td>
-                  <td>contactoB@example.com</td>
-                </tr>
-                <!-- Add more provider rows as needed -->
-              </tbody>
-            </table>
+          <div class="col-md-7">
+            <select class="form-control" name="selecionProve" id="selecionProve">
+              <option value="" selected></option>
+              
+              {% if lista_proveedor |length > 0 %}
+                {% for item in lista_proveedor %}
+                    <option value="{{ item['id'] }}"> Ruc: {{ item['ruc'] }} - {{ item['ruc_nro_identificador'] }}  {{ item['razon_social'] }}</option>
+                {% endfor %}
+              {% endif %}
+              
+            </select>
           </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-          </div>
+
         </div>
+        <div class="my-2">
+        </div>
+        <div class="form-row align-items-center">
+          <div class="col-md-5">
+            <label for="selecionProve">Seleccione Deposito</label>
+          </div>
+          <div class="col-md-7">
+            <select class="form-control" name="selecionProvee" id="selecionProvee">
+              <option value="" selected></option>
+              
+              {% if lista_proveedor |length > 0 %}
+                {% for item in lista_proveedor %}
+                    <option value="{{ item['id'] }}"> Ruc: {{ item['ruc'] }} - {{ item['ruc_nro_identificador'] }}  {{ item['razon_social'] }}</option>
+                {% endfor %}
+              {% endif %}
+              
+            </select>
+          </div>
+
+        </div>
+        <div class="my-3">
+        </div>
+
+        <table class="table table-bordered" id="providerTable" >
+          <thead>
+            <tr>
+              <th scope="col" >Ruc</th>
+              <th scope="col" >Razon Social</th>
+              <th scope="col">Accion</th>
+            </tr>
+          </thead>
+          <tbody style="height: 50px; overflow-y: auto;">
+            <!-- Add more provider rows as needed -->
+          </tbody>
+        </table>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
       </div>
     </div>
+  </div>
+</div>
+
+
+
     <p>{{ lista_proveedor }}</p>
 
 </div>
@@ -231,7 +249,25 @@
     pedidoSeleccionado: null
   };
 
+  const data_from_server = {
+    lista_proveedor: {{ lista_proveedor|tojson }}
+  }
+
+ 
+
+  const tr = ({ id, ruc, ruc_nro_identificador, razon_social }) => `
+  <tr data-id="${id}" class="tr_detalle_proveedor">
+    <td>${ruc} - ${ruc_nro_identificador}</td>
+    <td>${razon_social}</td>
+    <td>
+      <button type="button" class="eliminarProve btn btn-warning btn-sm">Eliminar</button>
+    </td>
+  </tr>
+`;
+
   $(function(){
+    $('#providerModal').modal('show');
+
     $('select[name="selNroSolicitud"], select[name="selecionProve"]').select2(extra_settings_select2);
     $('select[name="selNroSolicitud"], select[name="selecionProve"]').val('').trigger('change');
 
@@ -282,7 +318,32 @@
 
 
     });
+
+    let acumulador_proveedor = [];
+    $('select[name="selecionProve"]').on('select2:closing', function(e){
+      const id_proveedor = $('select[name="selecionProve"]').val() ? Number($('select[name="selecionProve"]').val()) : 0;
+      const { lista_proveedor } = data_from_server;
+      const proveedor_seleccionado = lista_proveedor.find(proveedor => proveedor.id === id_proveedor);
+      if(acumulador_proveedor.includes(proveedor_seleccionado)) {
+        alert("este elemento ya existe");
+        $('select[name="selecionProve"]').val(null).trigger('change');
+        return;
+      }
+      acumulador_proveedor.push(proveedor_seleccionado);
+
+
+      $('#providerTable tbody').append(tr(proveedor_seleccionado));
+    });
+    $('#providerTable tbody').on('click', '.eliminarProve', function() {
+      const id = Number($(this).closest('tr').data('id'));
+      acumulador_proveedor = acumulador_proveedor.filter(proveedor => proveedor.id !== id);
+      const tr = $(this).closest('tr').remove();
+    });
+
+
+
   });
+
 
 
 
