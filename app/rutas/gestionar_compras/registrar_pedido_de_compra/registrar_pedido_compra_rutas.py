@@ -6,7 +6,7 @@ from app.dao.referencial.prioridad.PrioridadDao import PrioridadDao
 from app.dao.referencial.insumos.InsumoDao import InsumoDao
 from app.dao.gestionar_compras.registrar_solicitud_de_compras.SolicitudComprasDao import SolicitudComprasDao,SolicitudCompraDetalledto,SolcitudCompradto
 from app.dao.referencial.proveedor.ProveedorDao import ProveedorDao
-
+from app.dao.referencial.deposito.DepositoDao import DepostioDao
 
 rpcmod = Blueprint('rpcmod',__name__, template_folder='templates')
 #algunas instancias 
@@ -16,6 +16,7 @@ prio = PrioridadDao()
 insumo = InsumoDao()
 solicitud_dao = SolicitudComprasDao()
 proveedor_dao = ProveedorDao()
+depostio_dao = DepostioDao()
 
 
 
@@ -36,6 +37,7 @@ def formulario_registrar_solicitud_compras():
 								lista_prioridades = prio.getPrioridades(), \
 								lista_insumos = insumo.getInsumos(), \
 							    lista_proveedor = proveedor_dao.getProveedores() , \
+								listar_deposito = depostio_dao.getDeposito() , \
 								listado_solicitudes_pendientes = lista_solicitudes_pendientes)
 
 
