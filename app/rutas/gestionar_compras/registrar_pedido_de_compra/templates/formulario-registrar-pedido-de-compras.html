@@ -127,11 +127,16 @@
                         </div>
                     </div>
                     <div class="card-body">
-                        <table class="table" id="tblinsumo">
+                          <div class="table-responsive">
+                            <table class="table table-bordered" name="pediTable" id="pediTable" 
+                            data-toggle="table"
+                            data-search="true"
+                            data-pagination="true"
+                            data-striped="true">
                             <thead>
                               <tr>
+                                <th scope="col">Proveedor</th>
                                 <th scope="col">Insumo</th>
-                                <th scope="col">Unidad de Medida</th>
                                 <th scope="col">Cantidad</th>
                                 <th scope="col">Acciones</th>
                               </tr>
@@ -199,8 +204,10 @@
         </div>
 
         <div class="my-3"></div>
-
+        <hr>
         <div class="table-responsive">
+
+            <h4>Proveedores elegidos</h4>
             <table class="table table-bordered" name="providerTable" id="providerTable" 
             data-toggle="table"
             data-search="true"
@@ -233,8 +240,10 @@
         </div>
 
         <div class="my-3"></div>
-
+        <hr>
         <div class="table-responsive" >
+          <h4>Insumos a Proveedores</h4>
+
            <table class="table table-bordered" name="detalleTableInsumo" id="detalleTableInsumo" 
             data-toggle="table"
             data-search="true"
@@ -256,7 +265,8 @@
 
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+        <button type="button" class="btn btn-primary" id="btAddPedidosExternos">Añadir</button>
+        <button type="button" class="btn btn-secondary" id="btAddCerrar" data-dismiss="modal">Cerrar</button>
       </div>
     </div>
   </div>
@@ -264,7 +274,7 @@
 
 
 
-    <p>{{ listar_deposito }}</p>
+   
 
 </div>
 
@@ -314,198 +324,272 @@ const tr_insumo = ({ id_insumo, insumo, cantidad, unidad_medida}) => `
 </tr>
 `;
 
-function cargarComplementoTabla() {
 
-}
+$(document).ready(function() {
+    
+    let acumulador_proveedor = [];
+    let acumulador_insumos = [];
 
-$(function(){
-  let acumulador_proveedor = [];
-  let acumulador_insumos = [];
+    let providerTable;
+    let detalleTableInsu;
+    let pedidosTable;
 
-  let providerTable;
-  let detalleTableInsu; 
+    // Inicialización de select2
+    $('select[name="selNroSolicitud"], select[name="selecionProve"], select[name="selecionDeposito"], select[name="selecionInsumo"]').select2(extra_settings_select2);
+    $('select[name="selNroSolicitud"], select[name="selecionProve"], select[name="selecionDeposito"], select[name="selecionInsumo"]').val('').trigger('change');
 
-  // Inicialización de select2
-  $('select[name="selNroSolicitud"], select[name="selecionProve"], select[name="selecionDeposito"], select[name="selecionInsumo"]').select2(extra_settings_select2);
-  $('select[name="selNroSolicitud"], select[name="selecionProve"], select[name="selecionDeposito"], select[name="selecionInsumo"]').val('').trigger('change');
-
-  // Evento change para selector de solicitud
-  $('select[name="selNroSolicitud"]').on('change', function(){
-      if(!$(this).val()) {
-          $('#tbldetallepedido').find('td').text('');
-          return;
+    // Evento change para selector de solicitud
+    $('select[name="selNroSolicitud"]').on('change', function() {
+      if (!$(this).val()) {
+        $('#tbldetallepedido').find('td').text('');
+        return;
       }
       fetch(`/gestionar-compras/registrar-pedido-compras/v1/get-solicitud-by-id/${$(this).val()}`)
-          .then(resp => resp.json())
-          .then(pedido => {
-              $('#fechasolicitudentregaplazo').val(pedido.fecha_entrega);
-              $('#tbldetallepedido tbody').empty();
+        .then(resp => resp.json())
+        .then(pedido => {
+          $('#fechasolicitudentregaplazo').val(pedido.fecha_entrega);
+          $('#tbldetallepedido tbody').empty();
 
-              const tableBody = $('#tbldetallepedido tbody');
-              pedidoInterno.pedidoSeleccionado = pedido;
-              $.each(pedido.detalle_insumo, function(index, detaPedido) {
-                  const fila = $('<tr>');
-                  fila.append(
-                      $('<td>').text(detaPedido.insumo),
-                      $('<td>').text(detaPedido.unidad_medida),
-                      $('<td>').text(detaPedido.cantidad)
-                  );
-                  tableBody.append(fila);
-              })
-          })
-          .catch(err => console.error(err));
-  });
+          const tableBody = $('#tbldetallepedido tbody');
+          pedidoInterno.pedidoSeleccionado = pedido;
+          $.each(pedido.detalle_insumo, function(index, detaPedido) {
+            const fila = $('<tr>');
+            fila.append(
+              $('<td>').text(detaPedido.insumo),
+              $('<td>').text(detaPedido.unidad_medida),
+              $('<td>').text(detaPedido.cantidad)
+            );
+            tableBody.append(fila);
+          });
+        })
+        .catch(err => console.error(err));
+    });
 
-  // Evento click para el botón de crear pedido
-  $('#btn_crear_pedido').on('click', function() {
+    // Evento click para el botón de crear pedido
+    $('#btn_crear_pedido').on('click', function() {
       $('select[name="selecionProve"], select[name="selecionDeposito"], select[name="selecionInsumo"]').val('').trigger('change');
       $('#selecionInsumo').empty();
 
-      if ($('#tbldetallepedido tbody tr').length > 0) {
-          $('#providerModal').on('shown.bs.modal', function () {
-              $('select[name="selecionProve"], select[name="selecionDeposito"], select[name="selecionInsumo"]').select2({
-                  dropdownParent: $('#providerModal'),
-                  placeholder: 'Buscar item',
-                  width: '100%'
-              });
-              if ($.fn.DataTable.isDataTable('#providerTable')) {
-                  // DataTable ya está inicializado
-              } else {
-                  providerTable = $('#providerTable').DataTable({
-                      paging: true,
-                      searching: true,
-                      ordering: true,
-                      lengthChange: false,
-                      pageLength: 4,
-                      language: {
-                          search: "Buscar:",
-                          paginate: {
-                              first: "Primero",
-                              last: "Último",
-                              next: "Siguiente",
-                              previous: "Anterior"
-                          },
-                          info: "Mostrando _START_ a _END_ de _TOTAL_ entradas",
-                          infoEmpty: "No se encontraron registros",
-                          infoFiltered: "(filtrado de _MAX_ registros en total)",
-                          zeroRecords: "No se encontraron registros coincidentes"
-                      }
-                  });
-              }
-              if ($.fn.DataTable.isDataTable('#detalleTableInsumo')) {
-                  // DataTable ya está inicializado
-              } else {
-                  detalleTableInsu = $('#detalleTableInsumo').DataTable({
-                      paging: true,
-                      searching: true,
-                      ordering: true,
-                      lengthChange: false,
-                      pageLength: 3,
-                      language: {
-                          search: "Buscar:",
-                          paginate: {
-                              first: "Primero",
-                              last: "Último",
-                              next: "Siguiente",
-                              previous: "Anterior"
-                          },
-                          info: "Mostrando _START_ a _END_ de _TOTAL_ entradas",
-                          infoEmpty: "No se encontraron registros",
-                          infoFiltered: "(filtrado de _MAX_ registros en total)",
-                          zeroRecords: "No se encontraron registros coincidentes"
-                      }
-                  });
-              }
+      if ($('#tbldetallepedido tbody tr').length > 0 && $('#txtfechaentrega').val()) {
+        $('#providerModal').on('shown.bs.modal', function() {
+          $('select[name="selecionProve"], select[name="selecionDeposito"], select[name="selecionInsumo"]').select2({
+            dropdownParent: $('#providerModal'),
+            placeholder: 'Buscar item',
+            width: '100%'
           });
 
-          const detalle_insu = pedidoInterno.pedidoSeleccionado;
+          if (!$.fn.DataTable.isDataTable('#providerTable')) {
+            providerTable = $('#providerTable').DataTable({
+              paging: true,
+              searching: true,
+              ordering: true,
+              lengthChange: false,
+              pageLength: 4,
+              language: {
+                search: "Buscar:",
+                paginate: {
+                  first: "Primero",
+                  last: "Último",
+                  next: "Siguiente",
+                  previous: "Anterior"
+                },
+                info: "Mostrando _START_ a _END_ de _TOTAL_ entradas",
+                infoEmpty: "No se encontraron registros",
+                infoFiltered: "(filtrado de _MAX_ registros en total)",
+                zeroRecords: "No se encontraron registros coincidentes"
+              }
+            });
+          }
+
+          if (!$.fn.DataTable.isDataTable('#detalleTableInsumo')) {
+            detalleTableInsu = $('#detalleTableInsumo').DataTable({
+              paging: true,
+              searching: true,
+              ordering: true,
+              lengthChange: false,
+              pageLength: 3,
+              language: {
+                search: "Buscar:",
+                paginate: {
+                  first: "Primero",
+                  last: "Último",
+                  next: "Siguiente",
+                  previous: "Anterior"
+                },
+                info: "Mostrando _START_ a _END_ de _TOTAL_ entradas",
+                infoEmpty: "No se encontraron registros",
+                infoFiltered: "(filtrado de _MAX_ registros en total)",
+                zeroRecords: "No se encontraron registros coincidentes"
+              }
+            });
+          }
+        });
+
+        const detalle_insu = pedidoInterno.pedidoSeleccionado;
+        $('#selecionInsumo').append($('<option>', {
+          value: '',
+          text: 'Seleccione una opción'
+        }));
+        detalle_insu.detalle_insumo.forEach((element) => {
           $('#selecionInsumo').append($('<option>', {
-              value: '',
-              text: 'Seleccione una opción'
+            value: element.id_insumo,
+            text: element.insumo
           }));
-          detalle_insu.detalle_insumo.forEach((element) => {
-              $('#selecionInsumo').append($('<option>', {
-                  value: element.id_insumo,
-                  text: element.insumo
-              }));
-          });
-          $('#providerModal').modal('show');
+        });
+      // $('#providerModal').modal('show');
+        $('#providerModal').modal({ backdrop: 'static', keyboard: false })
       } else {
-          console.log('Table is empty');
-          alert("Debes seleccionar una solicitud interna");
+        console.log('Table is empty');
+        alert("Debes seleccionar una solicitud interna o completar la fecha");
       }
-  });
+    });
 
-  // Evento select2:closing para selector de proveedores
-  $('select[name="selecionProve"]').on('select2:closing', function(e){
+    // Evento select2:closing para selector de proveedores
+    $('select[name="selecionProve"]').on('select2:closing', function(e) {
       const id_proveedor = $('select[name="selecionProve"]').val() ? Number($('select[name="selecionProve"]').val()) : 0;
       const { lista_proveedor } = data_from_server;
       const proveedor_seleccionado = lista_proveedor.find(proveedor => proveedor.id === id_proveedor);
-      if(acumulador_proveedor.includes(proveedor_seleccionado)) {
-          alert("Este elemento ya existe");
-          $('select[name="selecionProve"]').val(null).trigger('change');
-          return;
+      if (!proveedor_seleccionado) {
+        return;
+      }
+      if (acumulador_proveedor.includes(proveedor_seleccionado)) {
+        alert("Este elemento ya existe Proveedor");
+        $('select[name="selecionProve"]').val(null).trigger('change');
+        return;
       }
       acumulador_proveedor.push(proveedor_seleccionado);
 
       const nuevaFilaHTML = `
-      <tr data-id="${proveedor_seleccionado.id}" class="tr_detalle_proveedor">
+        <tr data-id="${proveedor_seleccionado.id}" class="tr_detalle_proveedor">
           <td>${proveedor_seleccionado.ruc} - ${proveedor_seleccionado.ruc_nro_identificador}</td>
           <td>${proveedor_seleccionado.razon_social}</td>
           <td>
-              <button type="button" class="eliminarProve btn btn-warning btn-sm">Eliminar</button>
+            <button type="button" class="eliminarProve btn btn-warning btn-sm">Eliminar</button>
           </td>
-      </tr>`;
+        </tr>`;
       providerTable.row.add($(nuevaFilaHTML)).draw();
-  });
+    });
 
-  // Evento click para eliminar proveedor
-  $('#providerTable tbody').on('click', '.eliminarProve', function() {
+    // Evento click para eliminar proveedor
+    $('#providerTable tbody').on('click', '.eliminarProve', function() {
       const id = Number($(this).closest('tr').data('id'));
       acumulador_proveedor = acumulador_proveedor.filter(proveedor => proveedor.id !== id);
-      $(this).closest('tr').remove();
       providerTable.row($(this).closest('tr')).remove().draw();
-  });
+    });
 
-  // Evento hidden.bs.modal para limpiar tabla de proveedores al cerrar el modal
-  $('#providerModal').on('hidden.bs.modal', function () {
+    // Evento hidden.bs.modal para limpiar tabla de proveedores al cerrar el modal
+    $('#providerModal').on('hidden.bs.modal', function() {
       acumulador_proveedor = [];
       acumulador_insumos = [];
       providerTable.clear().draw();
       detalleTableInsu.clear().draw();
-  });
+    });
 
-  // Evento select2:closing para selector de insumos
-  $('select[name="selecionInsumo"]').on('select2:closing', function(e){
+    // Evento select2:closing para selector de insumos
+    $('select[name="selecionInsumo"]').on('select2:closing', function(e) {
       const id_insumo = $('select[name="selecionInsumo"]').val() ? Number($('select[name="selecionInsumo"]').val()) : 0;
       const { detalle_insumo } = pedidoInterno.pedidoSeleccionado;
       const insumo_seleccionado = detalle_insumo.find(detalle_insumo => detalle_insumo.id_insumo === id_insumo);
-
-      if(acumulador_insumos.includes(insumo_seleccionado)) {
-          alert("Este elemento ya existe");
-          $('select[name="selecionInsumo"]').val(null).trigger('change');
-          return;
+      if (!insumo_seleccionado) {
+        return;
+      }
+      if (acumulador_insumos.some(insumo => insumo.id_insumo === insumo_seleccionado.id_insumo)) {
+        alert("Este elemento ya existe Insumo");
+        $('select[name="selecionInsumo"]').val(null).trigger('change');
+        return;
       }
       acumulador_insumos.push(insumo_seleccionado);
 
       const nuevaFilaHTML = `
-      <tr data-id="${insumo_seleccionado.id_insumo}" class="tr_detalle_insumo">
+        <tr data-id="${insumo_seleccionado.id_insumo}" class="tr_detalle_insumo">
           <td>${insumo_seleccionado.insumo}</td>
           <td>${insumo_seleccionado.unidad_medida}</td>
           <td>${insumo_seleccionado.cantidad}</td>
           <td>
-              <button type="button" class="eliminarInsumo_Temp btn btn-warning btn-sm">Eliminar</button>
+            <button type="button" class="eliminarInsumo_Temp btn btn-warning btn-sm">Eliminar</button>
           </td>
-      </tr>`;
+        </tr>`;
       detalleTableInsu.row.add($(nuevaFilaHTML)).draw();
-  });
+    });
 
-  // Evento click para eliminar insumo temporal
-  $('#detalleTableInsumo tbody').on('click', '.eliminarInsumo_Temp', function() {
+    // Evento click para eliminar insumo temporal
+    $('#detalleTableInsumo tbody').on('click', '.eliminarInsumo_Temp', function() {
       const id = Number($(this).closest('tr').data('id'));
       acumulador_insumos = acumulador_insumos.filter(insumo => insumo.id_insumo !== id);
       detalleTableInsu.row($(this).closest('tr')).remove().draw();
-  });
+    });
+
+
+    $('#btAddPedidosExternos').on('click', function() {
+      // Tabla pedido externos
+      //1 . Especificar el json para la tabla, tiene que ser parecido al modelo de la BD
+      const pedidos = {
+        id_solicitud: $('select[name="selNroSolicitud"]').val(),
+        fecha_entrega_plazo_pedido: $('#txtfechaentrega').val(),
+        proveedores: [],
+        detalle_insumo: []
+      }
+      
+
+
+
+      // insumos
+
+      if($.fn.DataTable.isDataTable('#detalleTableInsumo') && $.fn.DataTable.isDataTable('#providerTable')  ){
+        const tproveedores = $('#providerTable').DataTable();
+
+        const tinsumos = $('#detalleTableInsumo').DataTable();
+        const insumos = tinsumos.data().toArray();
+        const proveedores = tproveedores.data().toArray();
+        if(proveedores === 0) {
+          alert('Debe agregar proveedores a la tabla');
+          return
+        }
+
+        if(insumos === 0) {
+          alert('Debe agregar insumo a la tabla');
+          return
+        }
+        tproveedores.rows().every(function() {
+          const row = this.node();
+          pedidos.proveedores.push({
+            id_proveedor: $(row).attr('data-id')
+          });
+      });
+
+        tinsumos.rows().every(function() {
+            const rowData = this.data();
+            pedidos.detalle_insumo.push({
+              id_insumo: $(this.node()).attr('data-id'),
+              cantidad: rowData[2],
+              nombre_insumo: rowData[0],
+              unidad_medida: rowData[1]
+            });
+        });
+        //('#providerModal').modal('dispose'); //se cierrea el modal destruye
+        $('#btAddCerrar').trigger('click');
+        llenarTablaPedidosExternos(pedidos);
+
+      } else {
+        alert('Problem al obtener las tablas');
+        return;
+      }
+    });
+
+
+    const llenarTablaPedidosExternos = (pedidos = null) => {
+      if(pedidos === null) {
+        console.error('hay problema al llenar pedidos externos');
+        return;
+
+      }
+
+    }
+
+    //2 . Utilizar el JSON  para construir los td
+    //3 . Añadir los botones de modificar y eliminar a cada td
+    //4 . Especificar  el comportamiento es us evento de componente 
+
 });
 
 
