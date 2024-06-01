@@ -136,8 +136,8 @@
                             <thead>
                               <tr>
                                 <th scope="col">Proveedor</th>
-                                <th scope="col">Insumo</th>
-                                <th scope="col">Cantidad</th>
+                                <th scope="col">Deposito</th>
+                                <th scope="col">Fecha Entrega</th>
                                 <th scope="col">Acciones</th>
                               </tr>
                             </thead>
@@ -273,7 +273,24 @@
 </div>
 
 
-
+    <!-- Modal para mostrar los detalles de los insumos -->
+    <div class="modal fade" id="detalleModal" tabindex="-1" aria-labelledby="detalleModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+          <div class="modal-content">
+              <div class="modal-header">
+                  <h5 class="modal-title" id="detalleModalLabel">Detalles del Insumo</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                  <ul id="insumoDetalle-info" class="list-group">
+                      <!-- Aquí se agregarán los detalles del insumo -->
+                  </ul>
+              </div>
+              <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+              </div>
+          </div>
+      </div>
    
 
 </div>
@@ -296,7 +313,8 @@
   };
 
   const data_from_server = {
-    lista_proveedor: {{ lista_proveedor|tojson }}
+    lista_proveedor: {{ lista_proveedor|tojson }},
+    listar_deposito: {{ listar_deposito|tojson }}
   }
 
  
@@ -333,6 +351,29 @@ $(document).ready(function() {
     let providerTable;
     let detalleTableInsu;
     let pedidosTable;
+    let pediTable;
+    if (!$.fn.DataTable.isDataTable('#pediTable')) {
+      pediTable = $('#pediTable').DataTable({
+              paging: true,
+              searching: true,
+              ordering: true,
+              lengthChange: false,
+              pageLength: 4,
+              language: {
+                search: "Buscar:",
+                paginate: {
+                  first: "Primero",
+                  last: "Último",
+                  next: "Siguiente",
+                  previous: "Anterior"
+                },
+                info: "Mostrando _START_ a _END_ de _TOTAL_ entradas",
+                infoEmpty: "No se encontraron registros",
+                infoFiltered: "(filtrado de _MAX_ registros en total)",
+                zeroRecords: "No se encontraron registros coincidentes"
+              }
+            });
+          }
 
     // Inicialización de select2
     $('select[name="selNroSolicitud"], select[name="selecionProve"], select[name="selecionDeposito"], select[name="selecionInsumo"]').select2(extra_settings_select2);
@@ -526,6 +567,7 @@ $(document).ready(function() {
       const pedidos = {
         id_solicitud: $('select[name="selNroSolicitud"]').val(),
         fecha_entrega_plazo_pedido: $('#txtfechaentrega').val(),
+        id_deposito:  $('select[name="selecionDeposito"]').val(),
         proveedores: [],
         detalle_insumo: []
       }
@@ -551,9 +593,12 @@ $(document).ready(function() {
           return
         }
         tproveedores.rows().every(function() {
-          const row = this.node();
+          const row = this.data();
           pedidos.proveedores.push({
-            id_proveedor: $(row).attr('data-id')
+            id_proveedor: $(this.node()).attr('data-id'),
+            ruc: row[0],
+            razon_social: row[1]
+
           });
       });
 
@@ -567,11 +612,18 @@ $(document).ready(function() {
             });
         });
         //('#providerModal').modal('dispose'); //se cierrea el modal destruye
+        if ( pedidos.detalle_insumo.length === 0 || pedidos.proveedores.length === 0 || pedidos.id_deposito.length === 0) {
+          alert('Debes completar todos los campos');
+        return;
+       }else{
         $('#btAddCerrar').trigger('click');
+
+       }
+
         llenarTablaPedidosExternos(pedidos);
 
       } else {
-        alert('Problem al obtener las tablas');
+        alert('Problema al obtener las tablas');
         return;
       }
     });
@@ -581,8 +633,60 @@ $(document).ready(function() {
       if(pedidos === null) {
         console.error('hay problema al llenar pedidos externos');
         return;
-
       }
+      console.log(pedidos);
+       // Inicializar DataTables
+       var pediTable = $('#pediTable').DataTable();
+
+ 
+    
+   
+
+       const { listar_deposito } = data_from_server;
+       const depo_seleccionado = listar_deposito.find(depo => depo.id === parseInt(pedidos.id_deposito,0));
+
+       // Agregar filas a la tabla con los detalles del pedido
+       pedidos.proveedores.forEach(function(proveedor) {
+           const nuevaFilaHTML = `
+               <tr data-id="${proveedor.id_proveedor}">
+                   <td>${proveedor.razon_social}</td>
+                   <td>${depo_seleccionado.descripcion}</td>
+                   <td>${pedidos.fecha_entrega_plazo_pedido}</td>
+                   <td>
+                       <button type="button" class="verDetalle btn btn-info btn-sm" data-id-proveedor="${proveedor.id_proveedor}">Ver Detalle</button>
+                       <button type="button" class="eliminarFila btn btn-warning btn-sm">Eliminar</button>
+                   </td>
+               </tr>`;
+               pediTable.row.add($(nuevaFilaHTML)).draw();
+       });
+          // Manejar clic en el botón "Ver Detalle"
+          $('#pediTable tbody').on('click', '.verDetalle', function() {
+            var idProveedor = $(this).data('id-proveedor');
+            var insumos = pedidos.detalle_insumo;
+
+            // Limpiar la lista de detalles del insumo
+            $('#insumoDetalle-info').empty();
+
+            // Agregar detalles del insumo a la lista
+            insumos.forEach(function(insumo) {
+                const detalleInsumoHTML = `
+                    <li class="list-group-item">
+                        <strong>ID Insumo:</strong> ${insumo.id_insumo}<br>
+                        <strong>Cantidad:</strong> ${insumo.cantidad}<br>
+                        <strong>Nombre Insumo:</strong> ${insumo.nombre_insumo}<br>
+                        <strong>Unidad de Medida:</strong> ${insumo.unidad_medida}
+                    </li>`;
+                $('#insumoDetalle-info').append(detalleInsumoHTML);
+            });
+
+            // Mostrar el modal con los detalles del insumo
+            $('#detalleModal').modal('show');
+        });
+
+           // Manejar eliminación de filas
+           $('#pediTable tbody').on('click', '.eliminarFila', function() {
+            pediTable.row($(this).parents('tr')).remove().draw();
+        });
 
     }
 
