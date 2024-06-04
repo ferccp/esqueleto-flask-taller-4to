@@ -302,7 +302,6 @@
 
 {% block mi_javascript %}
 <script>
-
   const extra_settings_select2 = {
     placeholder: "Buscar item",
     theme: 'bootstrap-5'
@@ -344,7 +343,8 @@ const tr_insumo = ({ id_insumo, insumo, cantidad, unidad_medida}) => `
 
 
 $(document).ready(function() {
-    
+  let pedidosExterno = [];
+
     let acumulador_proveedor = [];
     let acumulador_insumos = [];
 
@@ -390,11 +390,13 @@ $(document).ready(function() {
         .then(pedido => {
           $('#fechasolicitudentregaplazo').val(pedido.fecha_entrega);
           $('#tbldetallepedido tbody').empty();
-
+          //1:52
           const tableBody = $('#tbldetallepedido tbody');
           pedidoInterno.pedidoSeleccionado = pedido;
           $.each(pedido.detalle_insumo, function(index, detaPedido) {
             const fila = $('<tr>');
+            fila.addClass('insumotr');  
+            fila.attr('id')
             fila.append(
               $('<td>').text(detaPedido.insumo),
               $('<td>').text(detaPedido.unidad_medida),
@@ -583,15 +585,39 @@ $(document).ready(function() {
         const tinsumos = $('#detalleTableInsumo').DataTable();
         const insumos = tinsumos.data().toArray();
         const proveedores = tproveedores.data().toArray();
-        if(proveedores === 0) {
+        if(proveedores.length === 0) {
           alert('Debe agregar proveedores a la tabla');
           return
         }
 
-        if(insumos === 0) {
+        if(insumos.length === 0) {
           alert('Debe agregar insumo a la tabla');
           return
         }
+
+        //verificar tabla de proveedores externos
+        let detectarProveedorduplicado = false;
+        const pediTable = $('#pediTable').DataTable().data();
+        if(pediTable.length > 0) {
+          $('#pediTable').DataTable().rows().every(function() {
+            //debugger;
+            const nombre_proveedor = this.data()[0];
+            tproveedores.rows().every(function() {
+              const nombre_proveedor_modal = this.data()[1];
+              if(nombre_proveedor_modal === nombre_proveedor) {
+                detectarProveedorduplicado = true;
+                return;
+              }
+            });
+          });
+        }
+        if(detectarProveedorduplicado) {
+          alert("Este proveedor ya existe");
+          return;
+        }
+
+
+
         tproveedores.rows().every(function() {
           const row = this.data();
           pedidos.proveedores.push({
@@ -619,7 +645,7 @@ $(document).ready(function() {
         $('#btAddCerrar').trigger('click');
 
        }
-
+       alert('hola');
         llenarTablaPedidosExternos(pedidos);
 
       } else {
@@ -634,16 +660,10 @@ $(document).ready(function() {
         console.error('hay problema al llenar pedidos externos');
         return;
       }
-      console.log(pedidos);
        // Inicializar DataTables
-       var pediTable = $('#pediTable').DataTable();
-
- 
-    
-   
-
+       const pediTable = $('#pediTable').DataTable()
        const { listar_deposito } = data_from_server;
-       const depo_seleccionado = listar_deposito.find(depo => depo.id === parseInt(pedidos.id_deposito,0));
+       const depo_seleccionado = listar_deposito.find(depo => depo.id === Number(pedidos.id_deposito));
 
        // Agregar filas a la tabla con los detalles del pedido
        pedidos.proveedores.forEach(function(proveedor) {
@@ -661,8 +681,8 @@ $(document).ready(function() {
        });
           // Manejar clic en el botón "Ver Detalle"
           $('#pediTable tbody').on('click', '.verDetalle', function() {
-            var idProveedor = $(this).data('id-proveedor');
-            var insumos = pedidos.detalle_insumo;
+            const idProveedor = $(this).data('id-proveedor');
+            const insumos = pedidos.detalle_insumo;
 
             // Limpiar la lista de detalles del insumo
             $('#insumoDetalle-info').empty();
@@ -688,14 +708,22 @@ $(document).ready(function() {
             pediTable.row($(this).parents('tr')).remove().draw();
         });
 
+        //verificar insumos no utilizados
+        pedidosExterno.push(pedidos);
+
     }
 
     //2 . Utilizar el JSON  para construir los td
     //3 . Añadir los botones de modificar y eliminar a cada td
     //4 . Especificar  el comportamiento es us evento de componente 
+    $('#btnregistrar').on('click', function() {
+      console.log(pedidosExterno.length);
+      console.log(pedidosExterno);
+
+    });
 
 });
-
+//fin del main
 
   // proviene del servidor
   // const data_from_server = {
