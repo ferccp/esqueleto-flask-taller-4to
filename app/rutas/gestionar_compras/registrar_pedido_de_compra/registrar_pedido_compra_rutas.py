@@ -38,7 +38,8 @@ def formulario_registrar_solicitud_compras():
 								lista_insumos = insumo.getInsumos(), \
 							    lista_proveedor = proveedor_dao.getProveedores() , \
 								listar_deposito = depostio_dao.getDeposito() , \
-								listado_solicitudes_pendientes = lista_solicitudes_pendientes)
+								listado_solicitudes_pendientes = lista_solicitudes_pendientes , \
+								habilitarBtnRegistra = {'btnBotonPedidoRegistrar':False})
 
 
 
@@ -66,23 +67,21 @@ def get_funcionario_by_id(id):
 		return funci.getFuncionarioPorId(id), 200
 
 
-@rpcmod.route('/v1/registrar-solicitud-compra', methods=['POST'])
-def registrar_solicitud_compra():
+@rpcmod.route('/v1/registrar-pedido-externo-compra', methods=['POST'])
+def registrar_pedido_externo_compra():
 		
 		#recuperar informacion
 		id_estado = request.json.get('id_estado')
 		id_funcionario = request.json.get('id_funcionario')
 		id_prioridad = request.json.get('id_prioridad')
-		fecha_entrega = request.json.get('fecha_entrega')
 		detalle_insumo = request.json.get('detalle_insumo')
 
 		# Validar 
-		if not id_estado or not id_funcionario or not id_prioridad or not fecha_entrega or not detalle_insumo or len(detalle_insumo) ==0:
+		if not id_estado or not id_funcionario or not id_prioridad  or not detalle_insumo or len(detalle_insumo) ==0:
 				app.logger.error({'success': None, 'error':'Hay errores en el payload de POST, consulte al administrador' })
 				return  {'success': None, 'error':'Hay errores en el payload de POST, consulte al administrador ' },400
-		detalle_insumo_dto = [ SolicitudCompraDetalledto(None, item['id_insumo'], item['cantidad']) for item in detalle_insumo ]
-		dto = SolcitudCompradto(None, None, id_estado, id_funcionario, id_prioridad, 1, fecha_entrega,detalle_insumo_dto)
-		isSaved = solicitud_dao.insertSolicitud(dto)
+	# Crear solicitud
+		isSaved = True
 		if isSaved:
 			return {'success':'Insercion exitoso', 'error': None},200 
 		else:

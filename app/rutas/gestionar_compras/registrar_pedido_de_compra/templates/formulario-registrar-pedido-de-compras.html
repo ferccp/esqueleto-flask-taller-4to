@@ -313,7 +313,10 @@
 
   const data_from_server = {
     lista_proveedor: {{ lista_proveedor|tojson }},
-    listar_deposito: {{ listar_deposito|tojson }}
+    listar_deposito: {{ listar_deposito|tojson }},
+    habilitarBtnRegistrar: {{ habilitarBtnRegistra|tojson }},
+    url_registra_pedido_externo : '{{ url_for("rpcmod.registrar_pedido_externo_compra") }}'
+
   }
 
  
@@ -343,7 +346,6 @@ const tr_insumo = ({ id_insumo, insumo, cantidad, unidad_medida}) => `
 
 
 $(document).ready(function() {
-  let pedidosExterno = [];
 
     let acumulador_proveedor = [];
     let acumulador_insumos = [];
@@ -352,6 +354,10 @@ $(document).ready(function() {
     let detalleTableInsu;
     let pedidosTable;
     let pediTable;
+
+    //inactiva boton registrarPedido
+    $('#btnregistrar').prop('disabled', !data_from_server.habilitarBtnRegistrar.btnBotonPedidoRegistrar);
+
     if (!$.fn.DataTable.isDataTable('#pediTable')) {
       pediTable = $('#pediTable').DataTable({
               paging: true,
@@ -570,8 +576,7 @@ $(document).ready(function() {
         id_solicitud: $('select[name="selNroSolicitud"]').val(),
         fecha_entrega_plazo_pedido: $('#txtfechaentrega').val(),
         id_deposito:  $('select[name="selecionDeposito"]').val(),
-        proveedores: [],
-        detalle_insumo: []
+        proveedores: []
       }
       
 
@@ -599,6 +604,7 @@ $(document).ready(function() {
         let detectarProveedorduplicado = false;
         const pediTable = $('#pediTable').DataTable().data();
         if(pediTable.length > 0) {
+          
           $('#pediTable').DataTable().rows().every(function() {
             //debugger;
             const nombre_proveedor = this.data()[0];
@@ -623,29 +629,38 @@ $(document).ready(function() {
           pedidos.proveedores.push({
             id_proveedor: $(this.node()).attr('data-id'),
             ruc: row[0],
-            razon_social: row[1]
+            razon_social: row[1],
+            detalle_pedido_de_compras: []
 
           });
       });
 
+        const detalle_insumo = []
         tinsumos.rows().every(function() {
             const rowData = this.data();
-            pedidos.detalle_insumo.push({
+              detalle_insumo.push({
               id_insumo: $(this.node()).attr('data-id'),
               cantidad: rowData[2],
               nombre_insumo: rowData[0],
               unidad_medida: rowData[1]
             });
         });
+
+        
+      for( const proveedor of pedidos.proveedores ) {
+        proveedor.detalle_pedido_de_compras = detalle_insumo;
+      }
+
         //('#providerModal').modal('dispose'); //se cierrea el modal destruye
-        if ( pedidos.detalle_insumo.length === 0 || pedidos.proveedores.length === 0 || pedidos.id_deposito.length === 0) {
+        if ( pedidos.proveedores.length === 0 ||  pedidos.id_deposito.length === 0) {
           alert('Debes completar todos los campos');
         return;
        }else{
         $('#btAddCerrar').trigger('click');
 
        }
-       alert('hola');
+       $('#btnregistrar').prop('disabled', false);
+
         llenarTablaPedidosExternos(pedidos);
 
       } else {
@@ -661,11 +676,11 @@ $(document).ready(function() {
         return;
       }
        // Inicializar DataTables
-       const pediTable = $('#pediTable').DataTable()
        const { listar_deposito } = data_from_server;
        const depo_seleccionado = listar_deposito.find(depo => depo.id === Number(pedidos.id_deposito));
 
        // Agregar filas a la tabla con los detalles del pedido
+       debugger;
        pedidos.proveedores.forEach(function(proveedor) {
            const nuevaFilaHTML = `
                <tr data-id="${proveedor.id_proveedor}">
@@ -673,54 +688,50 @@ $(document).ready(function() {
                    <td>${depo_seleccionado.descripcion}</td>
                    <td>${pedidos.fecha_entrega_plazo_pedido}</td>
                    <td>
-                       <button type="button" class="verDetalle btn btn-info btn-sm" data-id-proveedor="${proveedor.id_proveedor}">Ver Detalle</button>
+                       <button type="button" class="verDetalle btn btn-info btn-sm" data-id-proveedor="${proveedor.id_proveedor}" data-detalle_pedido_de_compras='${JSON.stringify(proveedor.detalle_pedido_de_compras)}' >Ver Detalle</button>
                        <button type="button" class="eliminarFila btn btn-warning btn-sm">Eliminar</button>
                    </td>
                </tr>`;
-               pediTable.row.add($(nuevaFilaHTML)).draw();
+               $('#pediTable').DataTable().row.add($(nuevaFilaHTML)).draw();
        });
-          // Manejar clic en el botón "Ver Detalle"
-          $('#pediTable tbody').on('click', '.verDetalle', function() {
-            const idProveedor = $(this).data('id-proveedor');
-            const insumos = pedidos.detalle_insumo;
+        //verificar insumos no utilizados
+        //almacenar 
 
-            // Limpiar la lista de detalles del insumo
-            $('#insumoDetalle-info').empty();
-
-            // Agregar detalles del insumo a la lista
-            insumos.forEach(function(insumo) {
-                const detalleInsumoHTML = `
+    }
+             // Manejar eliminación de filas
+        $('#pediTable tbody').on('click', '.eliminarFila', function() {
+              $('#pediTable').DataTable().row($(this).parents('tr')).remove().draw();
+          });
+  
+        // Manejar clic en el botón "Ver Detalle"
+        $('#pediTable tbody').on('click', '.verDetalle', function() {
+          const detalle_pedido_de_compras = $(this).data('detalle_pedido_de_compras');
+          // Limpiar la lista de detalles del insumo
+          $('#insumoDetalle-info').empty();
+          // Agregar detalles del insumo a la lista
+          if(detalle_pedido_de_compras) {
+            detalle_pedido_de_compras.forEach(function(insumo) {
+                $('#insumoDetalle-info').append(`
                     <li class="list-group-item">
                         <strong>ID Insumo:</strong> ${insumo.id_insumo}<br>
                         <strong>Cantidad:</strong> ${insumo.cantidad}<br>
                         <strong>Nombre Insumo:</strong> ${insumo.nombre_insumo}<br>
                         <strong>Unidad de Medida:</strong> ${insumo.unidad_medida}
-                    </li>`;
-                $('#insumoDetalle-info').append(detalleInsumoHTML);
+                    </li>`);
             });
-
-            // Mostrar el modal con los detalles del insumo
-            $('#detalleModal').modal('show');
+          }
+          // Mostrar el modal con los detalles del insumo
+          $('#detalleModal').modal('show');
         });
 
-           // Manejar eliminación de filas
-           $('#pediTable tbody').on('click', '.eliminarFila', function() {
-            pediTable.row($(this).parents('tr')).remove().draw();
-        });
 
-        //verificar insumos no utilizados
-        pedidosExterno.push(pedidos);
-
-    }
-
-    //2 . Utilizar el JSON  para construir los td
+    $('#btnregistrar').on('click', function() {
+            //2 . Utilizar el JSON  para construir los td
     //3 . Añadir los botones de modificar y eliminar a cada td
     //4 . Especificar  el comportamiento es us evento de componente 
-    $('#btnregistrar').on('click', function() {
-      console.log(pedidosExterno.length);
-      console.log(pedidosExterno);
+          });
 
-    });
+   
 
 });
 //fin del main

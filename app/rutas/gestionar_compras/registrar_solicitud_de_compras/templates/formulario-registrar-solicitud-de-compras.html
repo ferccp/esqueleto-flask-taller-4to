@@ -290,13 +290,6 @@
 			, cantidad: Number($(e).find('input').val())
 			});
 		});
-		console.log({
-			  id_estado: id_estado
-			, id_funcionario: id_funcionario
-			, id_prioridad: id_prioridad
-			, fecha_entrega: fecha_entrega
-			, detalle_insumo: detalle_insumo
-		});
 
           fetch(data_from_server.url_nueva_solicitud, {
             method: 'POST'
