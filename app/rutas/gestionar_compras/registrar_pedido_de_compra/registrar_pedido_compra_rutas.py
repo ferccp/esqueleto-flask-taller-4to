@@ -7,6 +7,7 @@ from app.dao.referencial.insumos.InsumoDao import InsumoDao
 from app.dao.gestionar_compras.registrar_solicitud_de_compras.SolicitudComprasDao import SolicitudComprasDao,SolicitudCompraDetalledto,SolcitudCompradto
 from app.dao.referencial.proveedor.ProveedorDao import ProveedorDao
 from app.dao.referencial.deposito.DepositoDao import DepostioDao
+from app.dao.gestionar_compras.registrar_pedido_compra.PedidoDeCompraDao import PedidoDeCompraDao 
 
 rpcmod = Blueprint('rpcmod',__name__, template_folder='templates')
 #algunas instancias 
@@ -67,25 +68,23 @@ def get_funcionario_by_id(id):
 		return funci.getFuncionarioPorId(id), 200
 
 
-@rpcmod.route('/v1/registrar-pedido-externo-compra', methods=['POST'])
-def registrar_pedido_externo_compra():
-		
-		#recuperar informacion
-		id_estado = request.json.get('id_estado')
-		id_funcionario = request.json.get('id_funcionario')
-		id_prioridad = request.json.get('id_prioridad')
-		detalle_insumo = request.json.get('detalle_insumo')
+@rpcmod.route('/v1/registrar_pedido_compra', methods=['POST'])
+def registrar_pedido_compra():
+	print(request.json)
+	pedidos = {}
+	pedidos['current_user'] = 1
+	pedidos['id_establecimiento'] = 1 #obtener desde de la sesion
+	pedidos['id_solicitud'] = request.json.get('id_solicitud')
+	pedidos['fecha_entrega_plazo_pedido'] = request.json.get('fecha_entrega_plazo_pedido')
+	pedidos['pedidos_de_compras_proveedor'] = request.json.get('pedidos_de_compras_proveedor')
+	pedidoDao = PedidoDeCompraDao()
+	isSaved = pedidoDao.registrarPedidos(pedidos)
+	if isSaved:
+		return {'success':' exitoso', 'error': None},200 
+	else:
+		return  {'success': None, 'error':'No se pudo registrar pedido de compras, consulte al administrador' },500
 
-		# Validar 
-		if not id_estado or not id_funcionario or not id_prioridad  or not detalle_insumo or len(detalle_insumo) ==0:
-				app.logger.error({'success': None, 'error':'Hay errores en el payload de POST, consulte al administrador' })
-				return  {'success': None, 'error':'Hay errores en el payload de POST, consulte al administrador ' },400
-	# Crear solicitud
-		isSaved = True
-		if isSaved:
-			return {'success':'Insercion exitoso', 'error': None},200 
-		else:
-			return  {'success': None, 'error':'No se pudo registrar solicitud de compras, consulte al administrador' },500
+
 
 @rpcmod.route('/v1/modificar-solicitud-compra', methods=['PUT'])
 def modificar_solicitud_compra():

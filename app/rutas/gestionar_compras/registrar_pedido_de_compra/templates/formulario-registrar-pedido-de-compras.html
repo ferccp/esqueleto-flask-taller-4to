@@ -315,7 +315,7 @@
     lista_proveedor: {{ lista_proveedor|tojson }},
     listar_deposito: {{ listar_deposito|tojson }},
     habilitarBtnRegistrar: {{ habilitarBtnRegistra|tojson }},
-    url_registra_pedido_externo : '{{ url_for("rpcmod.registrar_pedido_externo_compra") }}'
+    url_registra_pedido_compra : '{{ url_for("rpcmod.registrar_pedido_compra") }}'
 
   }
 
@@ -573,8 +573,8 @@ $(document).ready(function() {
       // Tabla pedido externos
       //1 . Especificar el json para la tabla, tiene que ser parecido al modelo de la BD
       const pedidos = {
-        id_solicitud: $('select[name="selNroSolicitud"]').val(),
         fecha_entrega_plazo_pedido: $('#txtfechaentrega').val(),
+        id_solicitud: $('select[name="selNroSolicitud"]').val(),
         id_deposito:  $('select[name="selecionDeposito"]').val(),
         proveedores: []
       }
@@ -631,28 +631,29 @@ $(document).ready(function() {
             ruc: row[0],
             razon_social: row[1],
             detalle_pedido_de_compras: []
-
           });
       });
 
+        //estado se agrego aca del pedido
         const detalle_insumo = []
         tinsumos.rows().every(function() {
             const rowData = this.data();
               detalle_insumo.push({
-              id_insumo: $(this.node()).attr('data-id'),
-              cantidad: rowData[2],
+              id_insumo: Number($(this.node()).attr('data-id')),
+              cantidad: parseFloat(rowData[2]),
               nombre_insumo: rowData[0],
-              unidad_medida: rowData[1]
+              unidad_medida: rowData[1],
+              id_deposito:  $('select[name="selecionDeposito"]').val()
             });
         });
-
+        
         
       for( const proveedor of pedidos.proveedores ) {
         proveedor.detalle_pedido_de_compras = detalle_insumo;
       }
 
         //('#providerModal').modal('dispose'); //se cierrea el modal destruye
-        if ( pedidos.proveedores.length === 0 ||  pedidos.id_deposito.length === 0) {
+        if ( pedidos.proveedores.length === 0 ) {
           alert('Debes completar todos los campos');
         return;
        }else{
@@ -677,24 +678,27 @@ $(document).ready(function() {
       }
        // Inicializar DataTables
        const { listar_deposito } = data_from_server;
-       const depo_seleccionado = listar_deposito.find(depo => depo.id === Number(pedidos.id_deposito));
 
        // Agregar filas a la tabla con los detalles del pedido
-       debugger;
+
        pedidos.proveedores.forEach(function(proveedor) {
+        const depo_seleccionado = listar_deposito.find(depo => depo.id === Number(pedidos.id_deposito));
+
            const nuevaFilaHTML = `
                <tr data-id="${proveedor.id_proveedor}">
                    <td>${proveedor.razon_social}</td>
                    <td>${depo_seleccionado.descripcion}</td>
                    <td>${pedidos.fecha_entrega_plazo_pedido}</td>
                    <td>
-                       <button type="button" class="verDetalle btn btn-info btn-sm" data-id-proveedor="${proveedor.id_proveedor}" data-detalle_pedido_de_compras='${JSON.stringify(proveedor.detalle_pedido_de_compras)}' >Ver Detalle</button>
+                       <button type="button" class="verDetalle btn btn-info btn-sm" data-id-proveedor="${proveedor.id_proveedor}" 
+                       data-proveedor='${JSON.stringify(proveedor)}'
+                       data-detalle_pedido_de_compras='${JSON.stringify(proveedor.detalle_pedido_de_compras)}' >Ver Detalle</button>
                        <button type="button" class="eliminarFila btn btn-warning btn-sm">Eliminar</button>
                    </td>
                </tr>`;
                $('#pediTable').DataTable().row.add($(nuevaFilaHTML)).draw();
        });
-        //verificar insumos no utilizados
+       //verificar insumos no utilizados
         //almacenar 
 
     }
@@ -726,14 +730,48 @@ $(document).ready(function() {
 
 
     $('#btnregistrar').on('click', function() {
-            //2 . Utilizar el JSON  para construir los td
-    //3 . Añadir los botones de modificar y eliminar a cada td
-    //4 . Especificar  el comportamiento es us evento de componente 
-          });
+
+      const pedidos = {
+        fecha_entrega_plazo_pedido: $('#txtfechaentrega').val(),
+        id_solicitud: Number($('select[name="selNroSolicitud"]').val()),
+        id_deposito:  Number($('select[name="selecionDeposito"]').val()),
+        pedidos_de_compras_proveedor: []
+      }
+      
+
+         // Recorre todas las filas de la tabla
+         $('.verDetalle').each(function() {
+          pedidos.pedidos_de_compras_proveedor.push({
+            id_proveedor: $(this).data('id-proveedor'),
+            id_estado: 1,
+            detalle_pedido_de_compras: $(this).data('detalle_pedido_de_compras')
+          })    
+      });
+
+        fetch(data_from_server.url_registra_pedido_compra, {
+             method: 'POST'
+             , headers: {
+               'Content-Type': 'application/json'
+             }
+             , body: JSON.stringify(pedidos)
+          })
+           .then(resp => resp.json())
+          .then(data => {
+            if(data && !data.error && data.success){
+              alert(data.success);
+             } else {
+               alert(data.error);
+             }
+          })
+          .catch(err => alert(err));
+         });
+
+      
+     });
 
    
 
-});
+
 //fin del main
 
   // proviene del servidor
