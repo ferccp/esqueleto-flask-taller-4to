@@ -19,15 +19,17 @@ solicitud_dao = SolicitudComprasDao()
 proveedor_dao = ProveedorDao()
 depostio_dao = DepostioDao()
 
+##Pedido externo
 
-
-@rpcmod.route('/index-registrar-solicitud-compras')
-def index_registrar_solicitud_compras():
+@rpcmod.route('/index-listar-pedido-de-compra')
+def index_listar_pedido_de_compra():
 		url_modificar = '/gestionar-compras/registrar-solicitud-compras/formulario-modificar-solicitud-compras'
-		lista_solicitudes = solicitud_dao.getSolcitudesPendientes()
-		if len(lista_solicitudes) < 0:
+		pedidoDao = PedidoDeCompraDao()
+		lista = pedidoDao.getPedidosdeCompras()
+		if len(lista) < 0:
 			flash('No hay solicitudes registradas', 'warning')
-		return render_template('index-registrar-solicitud-de-compras.html', lista_solicitudes = lista_solicitudes, url_modificar = url_modificar)
+		print(lista)
+		return render_template('index-listar-pedido-de-compra.html', lista_pedidos = lista, url_modificar = url_modificar)
 
 @rpcmod.route('/formulario-registrar-pedido-compras')
 def formulario_registrar_solicitud_compras():

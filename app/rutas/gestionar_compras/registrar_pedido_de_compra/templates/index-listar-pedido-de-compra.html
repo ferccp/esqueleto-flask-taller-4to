@@ -6,48 +6,33 @@
 <div class="card">
   <div class="card-header">
     <a href="{{ url_for('rscmod.formulario_registrar_solicitud_compras') }}" class="btn btn-primary">Nuevo</a>
-    <a  class="btn btn-info">Ver Pedidos de Compra</a>
+    <a  class="btn btn-info">Listar Pedidos de Compra</a>
 
   </div>
   <div class="card-body">
     <table class="table" id="tbl">
         <thead>
           <tr>
-            <th scope="col">Nro Solicitud</th>
-            <th scope="col">Departamento</th>
-            <th scope="col">Cargo</th>
-            <th scope="col">Fecha Entrega</th>
+            <th scope="col">Nro Pedido</th>
+            <th scope="col">Proveedor</th>
             <th scope="col">Estado</th>
-            <th scope="col">Prioridad</th>
+            <th scope="col">Fecha Creacion</th>    
+            <th scope="col">Fecha Entrega</th>
+            <th scope="col">Nro Solcitud Interna</th>
             <th scope="col">Accion</th>
           </tr>
         </thead>
         <tbody>
-            {% if lista_solicitudes|length > 0 %}
-                {% for item in lista_solicitudes %}
-                <tr class="item_solicitud" data-id="{{ item['id_solicitud'] }}">
+            {% if lista_pedidos|length > 0 %}
+                {% for item in lista_pedidos %}
+                <tr class="item_pedidos" data-id="{{ item['id_formulario_pedido_compras'] }}">
+                    <td>{{ item['nro_solicitud_compra'] }}</td>
+                    <td>{{ item['ruc_iden'] }}</td>
+                    <td>{{ item['estado_pedido'] }}</td>
+                    <td>{{ item['creacion_fecha'] }}</td>
+                    <td>{{ item['fecha_entrega_plazo_pedido'] }}</td>                    
                     <td>{{ item['nro_solicitud'] }}</td>
-                    <td>{{ item['departamento'] }}</td>
-                    <td>{{ item['cargo'] }}</td>
-                    <td>{{ item['fecha_entrega'] }}</td>
-                    <td>{{ item['estado'] }}</td>
-                    <td>{{ item['prioridad'] }}</td>
-                    <td>
-                        {% if item['estado'] != 'ANULAR' %}
-                        <button  type="button" class="asignar btn btn-primary btn-sm">Asignar a Pedido de Compras</button>
-                        <button type="button" class="modificar btn btn-info btn-sm">Modificar</button>
-                        <button type="button" class="anular btn btn-danger btn-sm" {% if item['estado'] == 'UTILIZADO' %}  hidden {% endif %}
-                        >Anular</button>
-                       
-                        {% else %}
-                        <a href="#" class="btn btn-danger btn-sm btn-icon-split">
-                          <span class="icon text-white-50">
-                              <i class="fas fa-trash"></i>
-                          </span>
-                          <span class="text">Registro Anulado</span>
-                         </a>
-                        {% endif %}
-                    </td>
+                    <td>{{ item['nro_solicitud'] }}</td>
 
                 </tr>
 
@@ -59,7 +44,7 @@
         {{ pintar_alerta(messages) }}
       </div>
     </div>
-
+    {{ lista_pedidos }}
 {% endblock %}
 
 {% block mi_javascript %}
