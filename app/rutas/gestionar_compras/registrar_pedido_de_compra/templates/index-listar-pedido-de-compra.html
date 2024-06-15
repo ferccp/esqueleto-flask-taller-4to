@@ -5,7 +5,7 @@
 {% block dinamico %}
 <div class="card">
   <div class="card-header">
-    <a href="{{ url_for('rscmod.formulario_registrar_solicitud_compras') }}" class="btn btn-primary">Nuevo</a>
+    <a href="{{ url_for('rpcmod.formulario_registrar_solicitud_compras') }}" class="btn btn-primary">Nuevo</a>
     <a  class="btn btn-info">Listar Pedidos de Compra</a>
 
   </div>
@@ -32,7 +32,9 @@
                     <td>{{ item['creacion_fecha'] }}</td>
                     <td>{{ item['fecha_entrega_plazo_pedido'] }}</td>                    
                     <td>{{ item['nro_solicitud'] }}</td>
-                    <td>{{ item['nro_solicitud'] }}</td>
+                    <td>
+                      <button  type="button"  class="asignar btn btn-primary btn-warning cambiar_proveedor"  data-id-proveedor="{{ item['id_proveedor'] }}" data-id_formulario_pedido_compras="{{ item['id_formulario_pedido_compras'] }}">Cambiar Proveedor</button>
+                    </td>
 
                 </tr>
 
@@ -41,7 +43,38 @@
             {% endif %}
           </tbody>
         </table>
-        {{ pintar_alerta(messages) }}
+      </div>
+      <div class="modal fade" id="cambiarProveedorModal" tabindex="-1" aria-labelledby="cambiarProveedor" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Cambiar Proveedor</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+
+                </div>
+               
+                <div class="modal-body">
+                  <input type="hidden" id="input_id_formulario_pedido_compra">
+                  <input type="hidden" id="input_old_id_proveedor">                  
+                    <select class="form-select" aria-label="Cambiar proveedor" id="cboProveedor">
+                        <option selected>...</option>
+                        {% if lista_proveedores|length > 0 %}
+                        {% for item in lista_proveedores %}
+                            <option value="{{ item['id'] }}">Ruc: {{ item['ruc'] }} - {{ item['ruc_nro_identificador'] }}  {{ item['razon_social'] }}</option>
+                        {% endfor %}
+                      {% endif %}
+                    </select>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="btAddCerrar" data-dismiss="modal">Cerrar</button>
+
+                    <button type="button" class="btn btn-primary" id="btnAceptarCambioProveedor">Aceptar</button>
+
+                </div>
+            </div>
+        </div>
       </div>
     </div>
     {{ lista_pedidos }}
@@ -49,84 +82,54 @@
 
 {% block mi_javascript %}
 <script>
- const data_from_server = {
-    formulario_modificar_solicitud_compras: '{{ url_modificar }}',
-    anular_solicitud_compra: '{{ url_for("rscmod.anular_solicitud_compra") }}',
-    index_registrar_solicitud_compras: '{{ url_for("rscmod.index_registrar_solicitud_compras") }}' 
- }
-
+ 
 	const addEvents = () => {
-		$('#tbl').on('click','.asignar', function(){
+    // ,as adelante ver pedido con su detalles
+		$('#tbl').on('click','.cambiar_proveedor', function(){
 
-			if(confirm('Desea Asignar ')){
-                /*
-                const id =  $(this).data('id');
 
-				fetch('/referencial/proveedor/v1/delete-proveedor',{
-					method:'DELETE',
-					headers:{
-						'Content-Type': 'application/json'
-					}
-					, body: JSON.stringify({ id:id })
-				})
-				.then(resp => resp.json())
-				.then(data => {
-					if(data && !data.error && data.success){		
-					//para borrar fila del datable
-					const fila = $(this).closest('tr');
-					const table = $('#tbl').DataTable();
-					alert(data.success);
-					table.row(fila).remove().draw();
-					}
-				})
-				.catch(err => {
-					alert(err);
-				 });
-                 */
+			if(confirm('¿Desea Cambiar Proveeedor?')){
+         
+        $('#cambiarProveedorModal').modal('show');
+        const id_proveedor = $(this).data('id-proveedor');
+        const id_formulario_pedido_compras = $(this).data('id_formulario_pedido_compras');
+        $('#input_id_formulario_pedido_compra').val(id_formulario_pedido_compras);
+        $('#input_old_id_proveedor').val(id_proveedor);
+
+        $('#cboProveedor').val(id_proveedor);
 				
 			}
 		
 
 		});
 
-
-		$('#tbl').on('click','.modificar', function(){
-			const id =  $(this).data('id');
-
-			if(confirm('Desea Modificar ')){
-				
-                const id = $(this).closest('tr').data('id');
-				location.href = `${data_from_server.formulario_modificar_solicitud_compras}/${id}`
-				
-			}
-		
-
-		});
-    $('#tbl').on('click','.anular', function() {
-      const id = $(this).closest('tr').data('id');
-			if(confirm('Desea Anular ')){        
-				 fetch(data_from_server.anular_solicitud_compra,{
-          method: 'PUT'
-          , headers: {
-            'Content-Type': 'application/json'
-          },body: JSON.stringify({ id_solicitud:id })
-         }).then(resp=> resp.json()).then( data => {
+    $('#btnAceptarCambioProveedor').on('click', function(){
+      if($('#input_old_id_proveedor').val() === $('#cboProveedor').val()) {
+        alert('no se ha cambiado');
+        return
+      }
+      const id_proveedor = $('#cboProveedor').val();
+      fetch('{{ url_for("rpcmod.actualizar_proveedor_por_pedido_compra") }}', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+          },body: JSON.stringify({
+            new_id_proveedor: Number($('#cboProveedor').val()),
+            old_id_proveedor: Number($('#input_old_id_proveedor').val()),
+            id_formulario_pedido_compra: Number($('#input_id_formulario_pedido_compra').val())
+          })
+        }) 
+        .then(resp=> resp.json())
+        .then( data => {
           if(data && !data.error && data.success){
             alert(data.success);
-            location.replace(data_from_server.index_registrar_solicitud_compras);
           } else {
             alert(data.error);
           } 
-         }).catch(err => alert(err));
-
-      }
-			
-		
-
-		});
-
-
-	}
+         
+        }).catch(err => alert(err))
+    });
+	} // fin de la funcion addEvents
 //funtion name
   $(function(){
     $('#tbl').DataTable();

@@ -46,7 +46,29 @@ class PedidoDeCompraDao:
             con.close()
         return []
 
-    
+
+    def actualizarProveedorPorPedido(self, pedido):
+             updatePedidoCompraProveedorSQL = """  UPDATE public.pedidos_de_compras_proveedor 
+             SET id_proveedor = %s
+             where id_formulario_pedido_compras = %s and id_proveedor = %s
+             """
+             conexion = Conexion()
+             con = conexion.getConexion()
+             cur = con.cursor()
+             try:
+                 cur.execute(updatePedidoCompraProveedorSQL,(pedido['new_id_proveedor'], pedido['id_formulario_pedido_compra'], pedido['old_id_proveedor'],))
+                 con.commit()
+                 return True
+             except con.Error as e:
+                app.logger.error(e)
+             finally:
+                cur.close()
+                con.close()
+             return False
+                
+
+
+
 
     def registrarPedidos(self, pedidos):
         #inserta y recupera el id generado

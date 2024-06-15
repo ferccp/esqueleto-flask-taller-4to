@@ -18,6 +18,7 @@ insumo = InsumoDao()
 solicitud_dao = SolicitudComprasDao()
 proveedor_dao = ProveedorDao()
 depostio_dao = DepostioDao()
+pedidoDao = PedidoDeCompraDao()
 
 ##Pedido externo
 
@@ -28,8 +29,7 @@ def index_listar_pedido_de_compra():
 		lista = pedidoDao.getPedidosdeCompras()
 		if len(lista) < 0:
 			flash('No hay solicitudes registradas', 'warning')
-		print(lista)
-		return render_template('index-listar-pedido-de-compra.html', lista_pedidos = lista, url_modificar = url_modificar)
+		return render_template('index-listar-pedido-de-compra.html', lista_pedidos = lista, lista_proveedores = proveedor_dao.getProveedores() , url_modificar = url_modificar)
 
 @rpcmod.route('/formulario-registrar-pedido-compras')
 def formulario_registrar_solicitud_compras():
@@ -79,7 +79,6 @@ def registrar_pedido_compra():
 	pedidos['id_solicitud'] = request.json.get('id_solicitud')
 	pedidos['fecha_entrega_plazo_pedido'] = request.json.get('fecha_entrega_plazo_pedido')
 	pedidos['pedidos_de_compras_proveedor'] = request.json.get('pedidos_de_compras_proveedor')
-	pedidoDao = PedidoDeCompraDao()
 	isSaved = pedidoDao.registrarPedidos(pedidos)
 	if isSaved:
 		return {'success':' exitoso', 'error': None},200 
@@ -122,7 +121,19 @@ def anular_solicitud_compra():
 			return {'success':'Anulacion exitoso', 'error': None},200 
 		else:
 			return  {'success': None, 'error':'No se pudo anular solicitud de compras, consulte al administrador' },500
+		
 
+@rpcmod.route('/v1/actualizar-proveedor-por-pedido-compra', methods=['PUT'])
+def actualizar_proveedor_por_pedido_compra():
+	pedido = {}
+	pedido['new_id_proveedor'] = request.json.get('new_id_proveedor')
+	pedido['old_id_proveedor'] = request.json.get('old_id_proveedor')
+	pedido['id_formulario_pedido_compra'] = request.json.get('id_formulario_pedido_compra')
+	isProcessed = pedidoDao.actualizarProveedorPorPedido(pedido)
+	if isProcessed:
+		return {'success':'Cambio exitoso', 'error': None},200 
+	else:
+		return  {'success': None, 'error':'No se pudo anular solicitud de compras, consulte al administrador' },500
 			
 		
 		
