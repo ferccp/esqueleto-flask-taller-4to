@@ -33,7 +33,11 @@
                     <td>{{ item['fecha_entrega_plazo_pedido'] }}</td>                    
                     <td>{{ item['nro_solicitud'] }}</td>
                     <td>
+                      <button  type="button"  class="asignar btn btn-secondary btn-secondary ver_pedido" data-id-proveedor="{{ item['id_proveedor'] }}"  data-nro_solicitud_compra="{{ item['nro_solicitud_compra'] }}">Ver Pedido</button>
+                      <button  type="button"  class="btn btn-secondary btn-secondary generar_pedido"  data-id-proveedor="{{ item['id_proveedor'] }}" data-id_formulario_pedido_compras="{{ item['id_formulario_pedido_compras'] }}">Generar Pedido</button>
+
                       <button  type="button"  class="asignar btn btn-primary btn-warning cambiar_proveedor"  data-id-proveedor="{{ item['id_proveedor'] }}" data-id_formulario_pedido_compras="{{ item['id_formulario_pedido_compras'] }}">Cambiar Proveedor</button>
+
                     </td>
 
                 </tr>
@@ -82,27 +86,37 @@
 
 {% block mi_javascript %}
 <script>
- 
+  const data_from_server = {
+    url_ver_pedido: "{{ url_for('rpcmod.formulario_ver_pedido_compra') }}"
+ }
+
 	const addEvents = () => {
     // ,as adelante ver pedido con su detalles
 		$('#tbl').on('click','.cambiar_proveedor', function(){
-
-
 			if(confirm('¿Desea Cambiar Proveeedor?')){
-         
         $('#cambiarProveedorModal').modal('show');
         const id_proveedor = $(this).data('id-proveedor');
         const id_formulario_pedido_compras = $(this).data('id_formulario_pedido_compras');
         $('#input_id_formulario_pedido_compra').val(id_formulario_pedido_compras);
         $('#input_old_id_proveedor').val(id_proveedor);
-
         $('#cboProveedor').val(id_proveedor);
-				
 			}
-		
-
 		});
-
+        // ,as adelante ver pedido con su detalles
+		$('#tbl').on('click','.ver_pedido', function(){
+			if(confirm('¿Desea Visualizar?')){
+        const nro_pedido_compra = $(this).data('nro_solicitud_compra');
+        location.href = `${data_from_server.url_ver_pedido}/${nro_pedido_compra}`            
+			}
+		});
+    //generar pedido de compra
+    $('#tbl').on('click','.generar_pedido', function(){
+			if(confirm('¿Desea Generar?')){
+        const nro_pedido_compra = $(this).data('nro_solicitud_compra');
+        location.href = `${data_from_server.url_ver_pedido}/${nro_pedido_compra}`            
+			}
+		});
+    
     $('#btnAceptarCambioProveedor').on('click', function(){
       if($('#input_old_id_proveedor').val() === $('#cboProveedor').val()) {
         alert('no se ha cambiado');
@@ -134,7 +148,6 @@
   $(function(){
     $('#tbl').DataTable();
 	addEvents();
-
   });
 </script>
 {% endblock %}

@@ -1,0 +1,918 @@
+{% extends "base.html" %}
+{% from 'macros.html' import pintar_alerta %}
+
+{% block titulo_pagina %}Ver pedido de compra{% endblock %}
+
+{% block dinamico %}
+
+
+
+<div class="card">
+    <div class="card-header">Modificar Pedido de Compra</div>
+
+    <!-- card main -->
+    <div class="card-body">
+
+        <div class="row g-3 mt-4">
+        <div class="col col-md-12">
+          <div class="card">
+            <div class="card-header">Pedido de Compra a Proveedor </div>
+            <div class="card-body">
+
+              <div class="row">
+                <div class="col col-md-2">
+                  <label for="selNroSolicitud">Nro. de Pedido : </label>
+              </div>
+              <div class="col col-md-2">
+
+              </div>
+      
+      
+                <div class="col col-md-2">
+                  <label for="fechasolicitudentregaplazo">Fecha Solicitud Entrega</label>
+              </div>
+              <div class="col col-md-2">
+                <input type="date" class="form-control" id="fechasolicitudentregaplazo">
+              </div>
+                <div class="col col-md-2">
+                    <label for="txtfechaentrega">Fecha plazo entrega pedido</label>
+                </div>
+                <div class="col col-md-2">
+                  <input type="date" class="form-control" id="txtfechaentrega">
+                </div>
+            </div>
+
+
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+          
+
+      
+      <!--  -->
+  <!--Informacion de Insumo -->
+        <div class="row mt-4">
+          <div class="col col-md-12">
+              <div class="card">
+                  <div class="card-header">
+                    <div class="row g-3">
+                      <h5>Detalle solcitud</h5>
+                      <div class="col col-md-offset-1">
+                        <button type="button" id="btn_ocultar" class="btn btn-success">Ocultar/Mostrar</button>
+                      </div>
+                  </div>
+                  </div>
+                  <div class="card-body">
+                      <div class="table-responsive">
+                          <table class="table table-collapse" id="tbldetallepedido">
+                              <thead class="sticky-top">
+                                  <tr>
+                                      <th scope="col" style="width: 33.33%;">Insumo</th>
+                                      <th scope="col" style="width: 33.33%;">Unidad de Medida</th>
+                                      <th scope="col" style="width: 33.33%;">Cantidad</th>
+                                  </tr>
+                              </thead>
+                              <tbody></tbody>
+                          </table>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </div>
+
+
+        <!-- Informacion Pedidos -->
+        <div class="row mt-4">
+            <div class="col col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="row g-3">
+                            <h5>Pedidos externos</h5>
+                            <div class="col col-md-offset-1"></div>
+                            <div class="col col-md-2">
+                              <button type="button" id="btn_crear_pedido" class="btn btn-success">Crear Pedido</button>
+                            </div>
+                       
+                        </div>
+                    </div>
+                    <div class="card-body">
+                          <div class="table-responsive">
+                            <table class="table table-bordered" name="pediTable" id="pediTable" 
+                            data-toggle="table"
+                            data-search="true"
+                            data-pagination="true"
+                            data-striped="true">
+                            <thead>
+                              <tr>
+                                <th scope="col">Proveedor</th>
+                                <th scope="col">Deposito</th>
+                                <th scope="col">Fecha Entrega</th>
+                                <th scope="col">Acciones</th>
+                              </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--  -->
+
+    </div>
+    <!-- alt 96 ` -->
+
+    <div class="card-footer">
+        <button type="button" id="btnregistrar" class="btn btn-primary">Registrar</button>
+        <button type="button" id="btn_volver" class="btn btn-info">Volver</button>
+    </div>
+
+
+<!-- Alta de Pedidos -->
+<div class="modal fade" id="providerModal" tabindex="-1" role="dialog" aria-labelledby="providerModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="providerModalLabel">Crear Pedidos</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-row align-items-center">
+          <div class="col-md-5">
+            <label for="selecionProve">Seleccione Proveedor</label>
+          </div>
+          <div class="col-md-7">
+            <select class="form-control" name="selecionProve" id="selecionProve">
+              <option value="" selected></option>
+              {% if lista_proveedor|length > 0 %}
+                {% for item in lista_proveedor %}
+                    <option value="{{ item['id'] }}">Ruc: {{ item['ruc'] }} - {{ item['ruc_nro_identificador'] }}  {{ item['razon_social'] }}</option>
+                {% endfor %}
+              {% endif %}
+            </select>
+          </div>
+        </div>
+
+        <div class="my-2"></div>
+
+        <div class="form-row align-items-center">
+          <div class="col-md-5">
+            <label for="selecionDeposito">Seleccione Deposito</label>
+          </div>
+          <div class="col-md-7">
+            <select class="form-control" name="selecionDeposito" id="selecionDeposito">
+              <option value="" selected></option>
+              {% if listar_deposito|length > 0 %}
+                {% for item in listar_deposito %}
+                    <option value="{{ item['id'] }}">{{ item['descripcion'] }}</option>
+                {% endfor %}
+              {% endif %}
+            </select>
+          </div>
+        </div>
+
+        <div class="my-3"></div>
+        <hr>
+        <div class="table-responsive">
+
+            <h4>Proveedores elegidos</h4>
+            <table class="table table-bordered" name="providerTable" id="providerTable" 
+            data-toggle="table"
+            data-search="true"
+            data-pagination="true"
+            data-striped="true">
+            <thead>
+              <tr>
+                <th scope="col" style="width: 33.33%;">Ruc</th>
+                <th scope="col" style="width: 33.33%;">Razon Social</th>
+                <th scope="col" style="width: 15.33%;" >Accion</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Add more provider rows as needed -->
+            </tbody>
+          </table>
+        </div>
+
+        <div class="border-bottom border-bottom-sm"></div>
+
+        <div class="my-3"></div>
+
+        <div class="form-row align-items-center">
+          <div class="col-md-5">
+            <label for="selecionInsumo">Seleccione Insumo</label>
+          </div>
+          <div class="col-md-7">
+            <select class="form-control" name="selecionInsumo" id="selecionInsumo"></select>
+          </div>
+        </div>
+
+        <div class="my-3"></div>
+        <hr>
+        <div class="table-responsive" >
+          <h4>Insumos a Proveedores</h4>
+
+           <table class="table table-bordered" name="detalleTableInsumo" id="detalleTableInsumo" 
+            data-toggle="table"
+            data-search="true"
+            data-pagination="true"
+            data-striped="true">
+            <thead>
+              <tr>
+                <th scope="col" style="width: 30.33%;">Insumo</th>
+                <th scope="col" style="width: 18.33%;">Unidad de Medida</th>
+                <th scope="col" style="width: 15.33%;">Cantidad</th>
+                <th scope="col" style="width: 15.33%;">Accion</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Add more provider rows as needed -->
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" id="btAddPedidosExternos">Añadir</button>
+        <button type="button" class="btn btn-secondary" id="btAddCerrar" data-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+    <!-- Modal para mostrar los detalles de los insumos -->
+    <div class="modal fade" id="detalleModal" tabindex="-1" aria-labelledby="detalleModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+          <div class="modal-content">
+              <div class="modal-header">
+                  <h5 class="modal-title" id="detalleModalLabel">Detalles del Insumo</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                  <ul id="insumoDetalle-info" class="list-group">
+                      <!-- Aquí se agregarán los detalles del insumo -->
+                  </ul>
+              </div>
+              <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+              </div>
+          </div>
+      </div>
+   
+
+</div>
+
+
+
+{{ pintar_alerta(messages) }}
+{% endblock %}
+
+{% block mi_javascript %}
+<script>
+  const extra_settings_select2 = {
+    placeholder: "Buscar item",
+    theme: 'bootstrap-5'
+  }
+
+  const pedidoInterno = {
+    pedidoSeleccionado: null
+  };
+
+  const data_from_server = {
+    lista_proveedor: {{ lista_proveedor|tojson }},
+    listar_deposito: {{ listar_deposito|tojson }},
+    habilitarBtnRegistrar: {{ habilitarBtnRegistra|tojson }},
+    url_registra_pedido_compra : '{{ url_for("rpcmod.registrar_pedido_compra") }}'
+
+  }
+
+ 
+
+  const tr_prove = ({ id, ruc, ruc_nro_identificador, razon_social }) => `
+  <tr data-id="${id}" class="tr_detalle_proveedor">
+    <td>${ruc} - ${ruc_nro_identificador}</td>
+    <td>${razon_social}</td>
+    <td>
+      <button type="button" class="eliminarProve btn btn-warning btn-sm">Eliminar</button>
+    </td>
+  </tr>
+`;
+
+
+
+const tr_insumo = ({ id_insumo, insumo, cantidad, unidad_medida}) => `
+<tr data-id="${id_insumo}" class="tr_detalle_insumo">
+  <td>${insumo}</td>
+  <td>${unidad_medida}</td>
+  <td>${cantidad}</td>
+  <td>
+    <button type="button" class="eliminarInsumo_Temp btn btn-warning btn-sm">Eliminar</button>
+  </td>
+</tr>
+`;
+
+
+$(document).ready(function() {
+
+    let acumulador_proveedor = [];
+    let acumulador_insumos = [];
+
+    let providerTable;
+    let detalleTableInsu;
+    let pedidosTable;
+    let pediTable;
+
+    //inactiva boton registrarPedido
+    $('#btnregistrar').prop('disabled', !data_from_server.habilitarBtnRegistrar.btnBotonPedidoRegistrar);
+
+    if (!$.fn.DataTable.isDataTable('#pediTable')) {
+      pediTable = $('#pediTable').DataTable({
+              paging: true,
+              searching: true,
+              ordering: true,
+              lengthChange: false,
+              pageLength: 4,
+              language: {
+                search: "Buscar:",
+                paginate: {
+                  first: "Primero",
+                  last: "Último",
+                  next: "Siguiente",
+                  previous: "Anterior"
+                },
+                info: "Mostrando _START_ a _END_ de _TOTAL_ entradas",
+                infoEmpty: "No se encontraron registros",
+                infoFiltered: "(filtrado de _MAX_ registros en total)",
+                zeroRecords: "No se encontraron registros coincidentes"
+              }
+            });
+          }
+
+    // Inicialización de select2
+    $('select[name="selNroSolicitud"], select[name="selecionProve"], select[name="selecionDeposito"], select[name="selecionInsumo"]').select2(extra_settings_select2);
+    $('select[name="selNroSolicitud"], select[name="selecionProve"], select[name="selecionDeposito"], select[name="selecionInsumo"]').val('').trigger('change');
+
+    // Evento change para selector de solicitud
+    $('select[name="selNroSolicitud"]').on('change', function() {
+      if (!$(this).val()) {
+        $('#tbldetallepedido').find('td').text('');
+        return;
+      }
+      fetch(`/gestionar-compras/registrar-pedido-compras/v1/get-solicitud-by-id/${$(this).val()}`)
+        .then(resp => resp.json())
+        .then(pedido => {
+          $('#fechasolicitudentregaplazo').val(pedido.fecha_entrega);
+          $('#tbldetallepedido tbody').empty();
+          //1:52
+          const tableBody = $('#tbldetallepedido tbody');
+          pedidoInterno.pedidoSeleccionado = pedido;
+          $.each(pedido.detalle_insumo, function(index, detaPedido) {
+            const fila = $('<tr>');
+            fila.addClass('insumotr');  
+            fila.attr('id')
+            fila.append(
+              $('<td>').text(detaPedido.insumo),
+              $('<td>').text(detaPedido.unidad_medida),
+              $('<td>').text(detaPedido.cantidad)
+            );
+            tableBody.append(fila);
+          });
+        })
+        .catch(err => console.error(err));
+    });
+
+    // Evento click para el botón de crear pedido
+    $('#btn_crear_pedido').on('click', function() {
+      $('select[name="selecionProve"], select[name="selecionDeposito"], select[name="selecionInsumo"]').val('').trigger('change');
+      $('#selecionInsumo').empty();
+
+      if ($('#tbldetallepedido tbody tr').length > 0 && $('#txtfechaentrega').val()) {
+        $('#providerModal').on('shown.bs.modal', function() {
+          $('select[name="selecionProve"], select[name="selecionDeposito"], select[name="selecionInsumo"]').select2({
+            dropdownParent: $('#providerModal'),
+            placeholder: 'Buscar item',
+            width: '100%'
+          });
+
+          if (!$.fn.DataTable.isDataTable('#providerTable')) {
+            providerTable = $('#providerTable').DataTable({
+              paging: true,
+              searching: true,
+              ordering: true,
+              lengthChange: false,
+              pageLength: 4,
+              language: {
+                search: "Buscar:",
+                paginate: {
+                  first: "Primero",
+                  last: "Último",
+                  next: "Siguiente",
+                  previous: "Anterior"
+                },
+                info: "Mostrando _START_ a _END_ de _TOTAL_ entradas",
+                infoEmpty: "No se encontraron registros",
+                infoFiltered: "(filtrado de _MAX_ registros en total)",
+                zeroRecords: "No se encontraron registros coincidentes"
+              }
+            });
+          }
+
+          if (!$.fn.DataTable.isDataTable('#detalleTableInsumo')) {
+            detalleTableInsu = $('#detalleTableInsumo').DataTable({
+              paging: true,
+              searching: true,
+              ordering: true,
+              lengthChange: false,
+              pageLength: 3,
+              language: {
+                search: "Buscar:",
+                paginate: {
+                  first: "Primero",
+                  last: "Último",
+                  next: "Siguiente",
+                  previous: "Anterior"
+                },
+                info: "Mostrando _START_ a _END_ de _TOTAL_ entradas",
+                infoEmpty: "No se encontraron registros",
+                infoFiltered: "(filtrado de _MAX_ registros en total)",
+                zeroRecords: "No se encontraron registros coincidentes"
+              }
+            });
+          }
+        });
+
+        const detalle_insu = pedidoInterno.pedidoSeleccionado;
+        $('#selecionInsumo').append($('<option>', {
+          value: '',
+          text: 'Seleccione una opción'
+        }));
+        detalle_insu.detalle_insumo.forEach((element) => {
+          $('#selecionInsumo').append($('<option>', {
+            value: element.id_insumo,
+            text: element.insumo
+          }));
+        });
+      // $('#providerModal').modal('show');
+        $('#providerModal').modal({ backdrop: 'static', keyboard: false })
+      } else {
+        console.log('Table is empty');
+        alert("Debes seleccionar una solicitud interna o completar la fecha");
+      }
+    });
+
+    // Evento select2:closing para selector de proveedores
+    $('select[name="selecionProve"]').on('select2:closing', function(e) {
+      const id_proveedor = $('select[name="selecionProve"]').val() ? Number($('select[name="selecionProve"]').val()) : 0;
+      const { lista_proveedor } = data_from_server;
+      const proveedor_seleccionado = lista_proveedor.find(proveedor => proveedor.id === id_proveedor);
+      if (!proveedor_seleccionado) {
+        return;
+      }
+      if (acumulador_proveedor.includes(proveedor_seleccionado)) {
+        alert("Este elemento ya existe Proveedor");
+        $('select[name="selecionProve"]').val(null).trigger('change');
+        return;
+      }
+      acumulador_proveedor.push(proveedor_seleccionado);
+
+      const nuevaFilaHTML = `
+        <tr data-id="${proveedor_seleccionado.id}" class="tr_detalle_proveedor">
+          <td>${proveedor_seleccionado.ruc} - ${proveedor_seleccionado.ruc_nro_identificador}</td>
+          <td>${proveedor_seleccionado.razon_social}</td>
+          <td>
+            <button type="button" class="eliminarProve btn btn-warning btn-sm">Eliminar</button>
+          </td>
+        </tr>`;
+      providerTable.row.add($(nuevaFilaHTML)).draw();
+    });
+
+    // Evento click para eliminar proveedor
+    $('#providerTable tbody').on('click', '.eliminarProve', function() {
+      const id = Number($(this).closest('tr').data('id'));
+      acumulador_proveedor = acumulador_proveedor.filter(proveedor => proveedor.id !== id);
+      providerTable.row($(this).closest('tr')).remove().draw();
+    });
+
+    // Evento hidden.bs.modal para limpiar tabla de proveedores al cerrar el modal
+    $('#providerModal').on('hidden.bs.modal', function() {
+      acumulador_proveedor = [];
+      acumulador_insumos = [];
+      providerTable.clear().draw();
+      detalleTableInsu.clear().draw();
+    });
+
+    // Evento select2:closing para selector de insumos
+    $('select[name="selecionInsumo"]').on('select2:closing', function(e) {
+      const id_insumo = $('select[name="selecionInsumo"]').val() ? Number($('select[name="selecionInsumo"]').val()) : 0;
+      const { detalle_insumo } = pedidoInterno.pedidoSeleccionado;
+      const insumo_seleccionado = detalle_insumo.find(detalle_insumo => detalle_insumo.id_insumo === id_insumo);
+      if (!insumo_seleccionado) {
+        return;
+      }
+      if (acumulador_insumos.some(insumo => insumo.id_insumo === insumo_seleccionado.id_insumo)) {
+        alert("Este elemento ya existe Insumo");
+        $('select[name="selecionInsumo"]').val(null).trigger('change');
+        return;
+      }
+      acumulador_insumos.push(insumo_seleccionado);
+
+      const nuevaFilaHTML = `
+        <tr data-id="${insumo_seleccionado.id_insumo}" class="tr_detalle_insumo">
+          <td>${insumo_seleccionado.insumo}</td>
+          <td>${insumo_seleccionado.unidad_medida}</td>
+          <td>${insumo_seleccionado.cantidad}</td>
+          <td>
+            <button type="button" class="eliminarInsumo_Temp btn btn-warning btn-sm">Eliminar</button>
+          </td>
+        </tr>`;
+      detalleTableInsu.row.add($(nuevaFilaHTML)).draw();
+    });
+
+    // Evento click para eliminar insumo temporal
+    $('#detalleTableInsumo tbody').on('click', '.eliminarInsumo_Temp', function() {
+      const id = Number($(this).closest('tr').data('id'));
+      acumulador_insumos = acumulador_insumos.filter(insumo => insumo.id_insumo !== id);
+      detalleTableInsu.row($(this).closest('tr')).remove().draw();
+    });
+
+
+    $('#btAddPedidosExternos').on('click', function() {
+      // Tabla pedido externos
+      //1 . Especificar el json para la tabla, tiene que ser parecido al modelo de la BD
+      const pedidos = {
+        fecha_entrega_plazo_pedido: $('#txtfechaentrega').val(),
+        id_solicitud: $('select[name="selNroSolicitud"]').val(),
+        id_deposito:  $('select[name="selecionDeposito"]').val(),
+        proveedores: []
+      }
+      
+
+
+
+      // insumos
+
+      if($.fn.DataTable.isDataTable('#detalleTableInsumo') && $.fn.DataTable.isDataTable('#providerTable')  ){
+        const tproveedores = $('#providerTable').DataTable();
+
+        const tinsumos = $('#detalleTableInsumo').DataTable();
+        const insumos = tinsumos.data().toArray();
+        const proveedores = tproveedores.data().toArray();
+        if(proveedores.length === 0) {
+          alert('Debe agregar proveedores a la tabla');
+          return
+        }
+
+        if(insumos.length === 0) {
+          alert('Debe agregar insumo a la tabla');
+          return
+        }
+
+        //verificar tabla de proveedores externos
+        let detectarProveedorduplicado = false;
+        const pediTable = $('#pediTable').DataTable().data();
+        if(pediTable.length > 0) {
+          
+          $('#pediTable').DataTable().rows().every(function() {
+            //debugger;
+            const nombre_proveedor = this.data()[0];
+            tproveedores.rows().every(function() {
+              const nombre_proveedor_modal = this.data()[1];
+              if(nombre_proveedor_modal === nombre_proveedor) {
+                detectarProveedorduplicado = true;
+                return;
+              }
+            });
+          });
+        }
+        if(detectarProveedorduplicado) {
+          alert("Este proveedor ya existe");
+          return;
+        }
+
+
+
+        tproveedores.rows().every(function() {
+          const row = this.data();
+          pedidos.proveedores.push({
+            id_proveedor: $(this.node()).attr('data-id'),
+            ruc: row[0],
+            razon_social: row[1],
+            detalle_pedido_de_compras: []
+          });
+      });
+
+        //estado se agrego aca del pedido
+        const detalle_insumo = []
+        tinsumos.rows().every(function() {
+            const rowData = this.data();
+              detalle_insumo.push({
+              id_insumo: Number($(this.node()).attr('data-id')),
+              cantidad: parseFloat(rowData[2]),
+              nombre_insumo: rowData[0],
+              unidad_medida: rowData[1],
+              id_deposito:  $('select[name="selecionDeposito"]').val()
+            });
+        });
+        
+        
+      for( const proveedor of pedidos.proveedores ) {
+        proveedor.detalle_pedido_de_compras = detalle_insumo;
+      }
+
+        //('#providerModal').modal('dispose'); //se cierrea el modal destruye
+        if ( pedidos.proveedores.length === 0 ) {
+          alert('Debes completar todos los campos');
+        return;
+       }else{
+        $('#btAddCerrar').trigger('click');
+
+       }
+       $('#btnregistrar').prop('disabled', false);
+
+        llenarTablaPedidosExternos(pedidos);
+
+      } else {
+        alert('Problema al obtener las tablas');
+        return;
+      }
+    });
+
+
+    const llenarTablaPedidosExternos = (pedidos = null) => {
+      if(pedidos === null) {
+        console.error('hay problema al llenar pedidos externos');
+        return;
+      }
+       // Inicializar DataTables
+       const { listar_deposito } = data_from_server;
+
+       // Agregar filas a la tabla con los detalles del pedido
+
+       pedidos.proveedores.forEach(function(proveedor) {
+        const depo_seleccionado = listar_deposito.find(depo => depo.id === Number(pedidos.id_deposito));
+
+           const nuevaFilaHTML = `
+               <tr data-id="${proveedor.id_proveedor}">
+                   <td>${proveedor.razon_social}</td>
+                   <td>${depo_seleccionado.descripcion}</td>
+                   <td>${pedidos.fecha_entrega_plazo_pedido}</td>
+                   <td>
+                       <button type="button" class="verDetalle btn btn-info btn-sm" data-id-proveedor="${proveedor.id_proveedor}" 
+                       data-proveedor='${JSON.stringify(proveedor)}'
+                       data-detalle_pedido_de_compras='${JSON.stringify(proveedor.detalle_pedido_de_compras)}' >Ver Detalle</button>
+                       <button type="button" class="eliminarFila btn btn-warning btn-sm">Eliminar</button>
+                   </td>
+               </tr>`;
+               $('#pediTable').DataTable().row.add($(nuevaFilaHTML)).draw();
+       });
+       //verificar insumos no utilizados
+        //almacenar 
+
+    }
+             // Manejar eliminación de filas
+        $('#pediTable tbody').on('click', '.eliminarFila', function() {
+              $('#pediTable').DataTable().row($(this).parents('tr')).remove().draw();
+          });
+  
+        // Manejar clic en el botón "Ver Detalle"
+        $('#pediTable tbody').on('click', '.verDetalle', function() {
+          const detalle_pedido_de_compras = $(this).data('detalle_pedido_de_compras');
+          // Limpiar la lista de detalles del insumo
+          $('#insumoDetalle-info').empty();
+          // Agregar detalles del insumo a la lista
+          if(detalle_pedido_de_compras) {
+            detalle_pedido_de_compras.forEach(function(insumo) {
+                $('#insumoDetalle-info').append(`
+                    <li class="list-group-item">
+                        <strong>ID Insumo:</strong> ${insumo.id_insumo}<br>
+                        <strong>Cantidad:</strong> ${insumo.cantidad}<br>
+                        <strong>Nombre Insumo:</strong> ${insumo.nombre_insumo}<br>
+                        <strong>Unidad de Medida:</strong> ${insumo.unidad_medida}
+                    </li>`);
+            });
+          }
+          // Mostrar el modal con los detalles del insumo
+          $('#detalleModal').modal('show');
+        });
+
+
+    $('#btnregistrar').on('click', function() {
+
+      const pedidos = {
+        fecha_entrega_plazo_pedido: $('#txtfechaentrega').val(),
+        id_solicitud: Number($('select[name="selNroSolicitud"]').val()),
+        id_deposito:  Number($('select[name="selecionDeposito"]').val()),
+        pedidos_de_compras_proveedor: []
+      }
+      
+
+         // Recorre todas las filas de la tabla
+         $('.verDetalle').each(function() {
+          pedidos.pedidos_de_compras_proveedor.push({
+            id_proveedor: $(this).data('id-proveedor'),
+            id_estado: 1,
+            detalle_pedido_de_compras: $(this).data('detalle_pedido_de_compras')
+          })    
+      });
+
+        fetch(data_from_server.url_registra_pedido_compra, {
+             method: 'POST'
+             , headers: {
+               'Content-Type': 'application/json'
+             }
+             , body: JSON.stringify(pedidos)
+          })
+           .then(resp => resp.json())
+          .then(data => {
+            if(data && !data.error && data.success){
+              alert(data.success);
+             } else {
+               alert(data.error);
+             }
+          })
+          .catch(err => alert(err));
+         });
+
+      
+     });
+
+   
+
+
+//fin del main
+
+  // proviene del servidor
+  // const data_from_server = {
+  //   url_nueva_solicitud : '{{ url_for("rscmod.registrar_solicitud_compra") }}'
+  //   ,insumos: {{ lista_insumos|tojson }}
+  //   ,index_registrar_solicitud_compras: '{{ url_for("rscmod.index_registrar_solicitud_compras") }}'
+
+
+
+
+  // }
+
+  // const extra_settings_select2 = {
+  //   placeholder: "Buscar item",
+  //   theme: 'bootstrap-5'
+  // }
+
+  // const tr = ({ id, descripcion, unidad_medida, impuesto }) => `
+  //   <tr data-id="${id}" class="tr_detalle_insumo">
+  //     <td>${id} | ${descripcion}</td>
+  //     <td>${unidad_medida}</td>
+  //     <td>${impuesto}</td>
+  //     <td>
+  //       <input type="number" name="txt_cantidad_insumo" class="form-control">
+  //     </td>
+  //     <td>
+  //       <button type="button" class="eliminar btn btn-warning btn-sm">Eliminar Item</button>
+  //     </td>
+  //   </tr>
+  // `;
+
+  // $(function(){
+  //   $('select[name="selfuncionario"], select[name="selprioridad"], select[name="selinsumo"]').select2(extra_settings_select2);
+  //   $('select[name="selfuncionario"]').on('change', function(){
+  //     if(!$(this).val()) {
+  //       $('#tblfuncionario').find('td').text('');
+  //       return;
+  //     }
+  //     fetch(`/gestionar-compras/registrar-solicitud-compras/v1/get-funcionario-by-id/${$(this).val()}`)
+  //       .then(resp => resp.json())
+  //       .then(funcionario => {
+  //         $('#tdcedula').text(funcionario.ci);
+  //         $('#tdnombres').text(`${funcionario.nombres} ${funcionario.apellidos}`);
+  //         $('#tdcargo').text(funcionario.cargo);
+  //         $('#tddepartamento').text(funcionario.departamento);
+  //       })
+  //       .catch(err => console.error(err));
+
+  //   });
+
+  //   let acumular_insumos = [];
+  //   $('select[name="selinsumo"]').on('select2:closing', function(e){
+  //     const id_insumo = $('select[name="selinsumo"]').val() ? Number($('select[name="selinsumo"]').val()) : 0;
+  //     const { insumos } = data_from_server;
+  //     const insumo_encontrado = insumos.find(item => item.id === id_insumo);
+  //     if(acumular_insumos.includes(insumo_encontrado.id)) {
+  //       alert("Este elemento ya existe en el detalle");
+  //       $('select[name="selinsumo"]').val(null).trigger('change');
+  //       return;
+  //     }
+  //     acumular_insumos.push(insumo_encontrado.id);
+  //     $('#tblinsumo tbody').append(tr(insumo_encontrado));
+  //     $('select[name="selinsumo"]').val(null).trigger('change');
+  //   });
+
+  //   $('#tblinsumo tbody').on('keypress', 'input[name="txt_cantidad_insumo"]', function(e) {
+  //     if(e.key === "Enter") {
+  //       const cantidad = $(this).val() ? parseFloat($(this).val()) : 0.0;
+  //       if(cantidad < 0) {
+  //         alert("No se admiten números negativos");
+  //         $(this).val(null);
+  //         return;
+  //       }
+  //     }
+  //   }).on('click', '.eliminar', function() {
+  //     const id_insumo = Number($(this).closest('tr').data('id'));
+  //     acumular_insumos = acumular_insumos.filter(item => item !== id_insumo);
+  //     const tr = $(this).closest('tr').remove();
+  //   });
+
+  //   $('#btnregistrar').on('click', function() {
+  //     const id_estado = 1;
+  //     const id_funcionario = $('select[name="selfuncionario"]').val();
+  //     const id_prioridad = $('select[name="selprioridad"]').val();
+	//   const fecha_entrega = $('#txtfechaentrega').val();
+
+	//   const arrayErrores = [];
+	//   if(!id_funcionario) {
+	// 	arrayErrores.push('funcionario');
+	//   }
+	//   if(!id_prioridad) {
+	// 	arrayErrores.push('prioridad');
+	//   }
+
+	//   if(!fecha_entrega) {
+	// 	arrayErrores.push('fecha de entrega');
+	//   }
+
+	//   if(arrayErrores.length > 0) {
+	// 	alert(`Hay errores en ${arrayErrores.join()}`);
+	// 	return;
+	//   }
+  //     /** detalle _solicitud
+  //       id_solicitud: generar en el backend
+  //       id_insumo
+  //       cantidad
+  //     */
+	//   const nro_filas_tabla = $('#tblinsumo tbody >').toArray().length;
+	//   if(nro_filas_tabla ===0 ) {
+	// 	alert("Debes agregar items al detalle");
+	// 	return;
+	//   } else {
+	// 	const elemento_tr = $('#tblinsumo tbody > tr').toArray();
+	// 	for(item of elemento_tr) {
+	// 		const cantidad = Number($(item).find('input').val());
+	// 		if(!cantidad) {
+	// 			alert("Elementos en el detalle no puede estar vacios");
+	// 			return;
+
+	// 		}
+	// 	};
+
+	//   }
+ 
+  //     let detalle_insumo = [];
+	//   $('#tblinsumo tbody > tr').toArray().forEach((e) =>{
+	// 	detalle_insumo.push({
+	// 		id_insumo: Number($(e).data('id'))
+	// 		, cantidad: Number($(e).find('input').val())
+	// 		});
+	// 	});
+	// 	console.log({
+	// 		  id_estado: id_estado
+	// 		, id_funcionario: id_funcionario
+	// 		, id_prioridad: id_prioridad
+	// 		, fecha_entrega: fecha_entrega
+	// 		, detalle_insumo: detalle_insumo
+	// 	});
+
+  //         fetch(data_from_server.url_nueva_solicitud, {
+  //           method: 'POST'
+  //           , headers: {
+  //             'Content-Type': 'application/json'
+  //           }
+  //           , body: JSON.stringify({
+  //                   id_estado: id_estado
+  //                   , id_funcionario: id_funcionario
+  //                   , id_prioridad: id_prioridad
+  //                   , fecha_entrega: fecha_entrega
+  //                 , detalle_insumo: detalle_insumo
+  //                 })
+  //         })
+  //         .then(resp => resp.json())
+  //         .then(data => {
+  //           if(data && !data.error && data.success){
+  //             alert(data.success);
+  //           } else {
+  //             alert(data.error);
+  //           }
+  //         })
+  //         .catch(err => alert(err));
+  //       });
+
+  //       $('#btn_volver').on('click', function(){
+  //         location.replace(data_from_server.index_registrar_solicitud_compras);
+  //       })
+  // });
+
+
+</script>
+{% endblock %}

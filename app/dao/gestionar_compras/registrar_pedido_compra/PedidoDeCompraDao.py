@@ -3,7 +3,71 @@ from app.conexion.Conexion import Conexion
 
 
 class PedidoDeCompraDao:
-
+    def getPedidosDeCompraByNroPedido(self, nro_pedido):
+        querySQLcabecera = """select b.id_formulario_pedido_compras,
+                b.id_proveedor ,
+                concat('( ', p.ruc,'-',p.ruc_nro_identificador,' ) ', p.razon_social) as ruc_iden,
+                b.id_estado ,
+                e.descripcion as estado_pedido,
+                sdc.id_solicitud,
+                sdc.nro_solicitud,
+                b.nro_solicitud_compra,
+                b.creacion_fecha,
+                a.fecha_entrega_plazo_pedido
+                from public.formulario_pedido_compras a
+                join solicitud_de_compra sdc on sdc.id_solicitud = a.id_solicitud
+                join pedidos_de_compras_proveedor b on 
+                a.id_formulario_pedido_compras = b.id_formulario_pedido_compras 
+                join proveedores p on p.id = b.id_proveedor 
+                join estados e on e.id = b.id_estado
+                 where b.nro_solicitud_compra = %s order by b.nro_solicitud_compra  desc;"""
+        
+        querySQLdetalle = """select  concat('( ',i.id,' ) ', trim(i.descripcion)) as insumos,
+          um.descripcion as unidad_medida,
+                    dpdc.cantidad ,d.descripcion  as deposito
+                    from pedidos_de_compras_proveedor  pdcp
+                    join proveedores p2 on p2.id = pdcp.id_proveedor 
+                    join detalle_pedido_de_compras dpdc  
+                    on dpdc.id_proveedor = pdcp.id_proveedor 
+                    and p2.id = dpdc.id_proveedor 
+                    join insumos i on i.id = dpdc.id_insumo
+                    join unidad_medida um on um.id = i.id_unidad_medida 
+                    join depositos d on d.id = dpdc.id_deposito 
+                    join estados e on e.id = pdcp.id_estado 
+                    where pdcp.nro_solicitud_compra = %s"""
+        conexion = Conexion()
+        con = conexion.getConexion()
+        cursor_solcitud = con.cursor()
+        cursor_detalle = con.cursor()
+        try:
+            cursor_solcitud.execute(querySQLcabecera, (nro_pedido,))
+            cursor_detalle.execute(querySQLdetalle, (nro_pedido,) )
+            pedido_solicitud = cursor_solcitud.fetchone()
+            pedido_detalle = cursor_detalle.fetchall()
+            return {
+                'id_formulario_pedido_compras': pedido_solicitud[0]
+                ,'id_proveedor': pedido_solicitud[1]
+                ,'ruc_iden': pedido_solicitud[2]
+                ,'id_estado': pedido_solicitud[3]
+                ,'estado_pedido': pedido_solicitud[4]
+                ,'id_solicitud': pedido_solicitud[5]
+                ,'nro_solicitud': pedido_solicitud[6]
+                ,'nro_solicitud_compra': pedido_solicitud[7]
+                ,'creacion_fecha': pedido_solicitud[8]
+                ,'fecha_entrega_plazo_pedido': pedido_solicitud[9]
+                ,'detalle_pedido':[{
+                    'insumos':item[0]
+                    ,'unidad_medida':item[1]
+                    ,'cantidad':item[2]
+                    ,'deposito':item[3]} for item in pedido_detalle]
+            }
+        except Exception as e:
+            app.logger.error(e)
+        finally:
+            cursor_solcitud.close()
+            cursor_detalle.close()
+        return []
+    
     def getPedidosdeCompras(self):
         querySQL = """select b.id_formulario_pedido_compras,
                 b.id_proveedor ,
@@ -45,6 +109,9 @@ class PedidoDeCompraDao:
             cur.close()
             con.close()
         return []
+        
+    
+
 
 
     def actualizarProveedorPorPedido(self, pedido):

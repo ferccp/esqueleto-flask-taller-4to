@@ -8,6 +8,7 @@ from app.dao.gestionar_compras.registrar_solicitud_de_compras.SolicitudComprasDa
 from app.dao.referencial.proveedor.ProveedorDao import ProveedorDao
 from app.dao.referencial.deposito.DepositoDao import DepostioDao
 from app.dao.gestionar_compras.registrar_pedido_compra.PedidoDeCompraDao import PedidoDeCompraDao 
+#from flask_weasyprint import HTML, render_pdf
 
 rpcmod = Blueprint('rpcmod',__name__, template_folder='templates')
 #algunas instancias 
@@ -24,12 +25,14 @@ pedidoDao = PedidoDeCompraDao()
 
 @rpcmod.route('/index-listar-pedido-de-compra')
 def index_listar_pedido_de_compra():
-		url_modificar = '/gestionar-compras/registrar-solicitud-compras/formulario-modificar-solicitud-compras'
+		url_ver_pedido = '/gestionar-compras/registrar-pedido-compras/formulario-ver-pedido-compra'
+		
 		pedidoDao = PedidoDeCompraDao()
 		lista = pedidoDao.getPedidosdeCompras()
 		if len(lista) < 0:
 			flash('No hay solicitudes registradas', 'warning')
-		return render_template('index-listar-pedido-de-compra.html', lista_pedidos = lista, lista_proveedores = proveedor_dao.getProveedores() , url_modificar = url_modificar)
+		return render_template('index-listar-pedido-de-compra.html', lista_pedidos = lista, lista_proveedores = proveedor_dao.getProveedores() ,
+						  url_ver_pedido = url_ver_pedido)
 
 @rpcmod.route('/formulario-registrar-pedido-compras')
 def formulario_registrar_solicitud_compras():
@@ -44,6 +47,21 @@ def formulario_registrar_solicitud_compras():
 								listado_solicitudes_pendientes = lista_solicitudes_pendientes , \
 								habilitarBtnRegistra = {'btnBotonPedidoRegistrar':False})
 
+#Visualizar pedido
+@rpcmod.route('/formulario-ver-pedido-compra')
+@rpcmod.route('/formulario-ver-pedido-compra/<nro_pedido>')
+def formulario_ver_pedido_compra(nro_pedido):
+	lista_pedido_compra = pedidoDao.getPedidosDeCompraByNroPedido(nro_pedido)
+	return render_template('formulario-ver-pedido-compra.html',estados = estado.getEsatdo(), \
+								lista_funcionarios = funci.getFuncionario(), \
+								lista_prioridades = prio.getPrioridades(), \
+								lista_insumos = insumo.getInsumos(), \
+							    lista_proveedor = proveedor_dao.getProveedores() , \
+								listar_deposito = depostio_dao.getDeposito() , \
+								listado_solicitudes_pendientes = [] , \
+								habilitarBtnRegistra = {'btnBotonPedidoRegistrar':False} , \
+								pedido = lista_pedido_compra
+								)
 
 
 @rpcmod.route('/formulario-modificar-solicitud-compras/<id_solicitud>')
@@ -63,6 +81,11 @@ def formulario_modificar_solicitud_compras(id_solicitud):
 def get_solicitudo_by_id(id):
 		return solicitud_dao.getSolcitudById(id), 200
 
+#PDF
+#@rpcmod.route('/generar-pedido-compra-por-proveedor')
+#def generar_pedido_compra_por_proveedor():
+#	html = render_template('generar_pedido_de_compra')
+#	return render_pdf(HTML(string=html))
 
 @rpcmod.route('/v1/get-funcionario-by-id/<id>')
 def get_funcionario_by_id(id):

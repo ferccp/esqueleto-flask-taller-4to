@@ -1,0 +1,48 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <link href="invoice.css" media="print" rel="stylesheet">
+    <title>{{titulo}}</title>
+    <meta name="description" content="Invoice demo sample">
+    <meta name="author" content="Juan">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/invoice.css') }}"/>
+  </head>
+
+  <body>
+    <h1>Pedido de Compra para el proveedor: [insertar proveedor]</h1>
+
+    <aside>
+      <address id="from">
+        Esta en algún lugar
+        entre una calle
+        y la vereda del vecino
+        Villa Elisa
+      </address>
+
+      <address id="to">
+        {{mensaje}}
+      </address>
+    </aside>
+
+    <dl id="informations">
+      <dt>Telefono</dt>
+      <dd>12345</dd>
+      <dt>Día</dt>
+    </dl>
+
+    <table>
+      <thead>
+        <tr>
+            <th>Reserva</th>
+            <th>Persona</th>
+            <th>Fecha inicio</th>
+            <th>Fecha fin</th>
+            <th>Estado</th>
+        </tr>
+    </thead>
+    <tbody>
+    </tbody>
+    </table>
+  </body>
+</html>
