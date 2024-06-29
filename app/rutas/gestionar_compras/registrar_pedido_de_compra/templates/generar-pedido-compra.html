@@ -10,38 +10,32 @@
   </head>
 
   <body>
-    <h1>Pedido de Compra para el proveedor: [insertar proveedor]</h1>
 
-    <aside>
-      <address id="from">
-        Esta en algún lugar
-        entre una calle
-        y la vereda del vecino
-        Villa Elisa
-      </address>
-
-      <address id="to">
-        {{mensaje}}
-      </address>
-    </aside>
+    <h1>Pedido N.º {{ nro_pedido }}</h1>
 
     <dl id="informations">
-      <dt>Telefono</dt>
-      <dd>12345</dd>
-      <dt>Día</dt>
+      <dt>Plazo Entrega</dt>
+      <dd>{{ pedido['fecha_entrega_plazo_pedido'] }}</dd>
+      <dt>Estado</dt>
+      <dd>{{ pedido['estado_pedido'] }}</dd>
     </dl>
 
     <table>
       <thead>
         <tr>
-            <th>Reserva</th>
-            <th>Persona</th>
-            <th>Fecha inicio</th>
-            <th>Fecha fin</th>
-            <th>Estado</th>
+            <th>Insumo</th>
+            <th>Unidad de medida</th>
+            <th>cantidad</th>
+            <th>Depósito</th>
         </tr>
     </thead>
     <tbody>
+      {% for ped in pedido['detalle_pedido'] %}
+        <td>{{ ped['insumos'] }}</td>
+        <td>{{ ped['unidad_medida'] }}</td>
+        <td>{{ ped['cantidad'] }}</td>
+        <td>{{ ped['deposito'] }}</td>
+      {% endfor %}
     </tbody>
     </table>
   </body>

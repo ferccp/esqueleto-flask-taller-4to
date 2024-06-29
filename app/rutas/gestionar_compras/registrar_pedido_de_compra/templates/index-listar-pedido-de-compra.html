@@ -34,8 +34,10 @@
                     <td>{{ item['nro_solicitud'] }}</td>
                     <td>
                       <button  type="button"  class="asignar btn btn-secondary btn-secondary ver_pedido" data-id-proveedor="{{ item['id_proveedor'] }}"  data-nro_solicitud_compra="{{ item['nro_solicitud_compra'] }}">Ver Pedido</button>
-                      <button  type="button"  class="btn btn-secondary btn-secondary generar_pedido"  data-id-proveedor="{{ item['id_proveedor'] }}" data-id_formulario_pedido_compras="{{ item['id_formulario_pedido_compras'] }}">Generar Pedido</button>
-
+                      <form action="{{ url_for('rpcmod.generar_pedido_compra_por_proveedor') }}" method="post" target="_blank">
+                        <input type="hidden" name="nro_pedido" value="{{ item['nro_solicitud_compra'] }}">
+                        <button type="submit" class="btn btn-secondary btn-secondary generar_pedido">Generar Pedido</button>
+                      </form>
                       <button  type="button"  class="asignar btn btn-primary btn-warning cambiar_proveedor"  data-id-proveedor="{{ item['id_proveedor'] }}" data-id_formulario_pedido_compras="{{ item['id_formulario_pedido_compras'] }}">Cambiar Proveedor</button>
 
                     </td>
@@ -110,12 +112,13 @@
 			}
 		});
     //generar pedido de compra
-    $('#tbl').on('click','.generar_pedido', function(){
-			if(confirm('¿Desea Generar?')){
-        const nro_pedido_compra = $(this).data('nro_solicitud_compra');
-        location.href = `${data_from_server.url_ver_pedido}/${nro_pedido_compra}`            
-			}
-		});
+    $('#tbl').on('click','.generar_pedido', function(e){
+      //añadir advertencia que se modificará el estado del pedido a "usando"
+      e.preventDefault();
+      if(confirm('¿Desea Generar?')){
+        $(this).closest('form').submit();
+      }
+    });
     
     $('#btnAceptarCambioProveedor').on('click', function(){
       if($('#input_old_id_proveedor').val() === $('#cboProveedor').val()) {

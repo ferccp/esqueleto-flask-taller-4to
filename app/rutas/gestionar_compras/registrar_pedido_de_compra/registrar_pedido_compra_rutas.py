@@ -8,7 +8,7 @@ from app.dao.gestionar_compras.registrar_solicitud_de_compras.SolicitudComprasDa
 from app.dao.referencial.proveedor.ProveedorDao import ProveedorDao
 from app.dao.referencial.deposito.DepositoDao import DepostioDao
 from app.dao.gestionar_compras.registrar_pedido_compra.PedidoDeCompraDao import PedidoDeCompraDao 
-#from flask_weasyprint import HTML, render_pdf
+from flask_weasyprint import HTML, render_pdf
 
 rpcmod = Blueprint('rpcmod',__name__, template_folder='templates')
 #algunas instancias 
@@ -82,10 +82,14 @@ def get_solicitudo_by_id(id):
 		return solicitud_dao.getSolcitudById(id), 200
 
 #PDF
-#@rpcmod.route('/generar-pedido-compra-por-proveedor')
-#def generar_pedido_compra_por_proveedor():
-#	html = render_template('generar_pedido_de_compra')
-#	return render_pdf(HTML(string=html))
+@rpcmod.route('/generar-pedido-compra-por-proveedor', methods=['POST'])
+def generar_pedido_compra_por_proveedor():
+	nro_pedido=request.form['nro_pedido']
+	lista_pedido_compra = pedidoDao.getPedidosDeCompraByNroPedido(nro_pedido)
+	html = render_template('generar-pedido-compra.html',nro_pedido = nro_pedido ,pedido = lista_pedido_compra )
+	return render_pdf(HTML(string=html))
+
+
 
 @rpcmod.route('/v1/get-funcionario-by-id/<id>')
 def get_funcionario_by_id(id):
