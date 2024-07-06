@@ -35,15 +35,37 @@ class PedidoDeCompraDao:
                     join depositos d on d.id = dpdc.id_deposito 
                     join estados e on e.id = pdcp.id_estado 
                     where pdcp.nro_solicitud_compra = %s"""
+        
+        updateSQLSolicitud = """  UPDATE solicitud_de_compra set id_estado = %s WHERE id_solicitud = %s"""
+        
+        updateSQLPedidosDeComprasProveedor = """
+        UPDATE pedidos_de_compras_proveedor SET id_estado = %s
+        WHERE id_formulario_pedido_compras = %s and id_proveedor = %s
+        """
+        
+
         conexion = Conexion()
         con = conexion.getConexion()
+        con.autocommit = False
         cursor_solcitud = con.cursor()
         cursor_detalle = con.cursor()
+        cursor_solicitud_compra = con.cursor()
+        cursor_pedido_de_compra_proveedor = con.cursor()
         try:
             cursor_solcitud.execute(querySQLcabecera, (nro_pedido,))
             cursor_detalle.execute(querySQLdetalle, (nro_pedido,) )
             pedido_solicitud = cursor_solcitud.fetchone()
             pedido_detalle = cursor_detalle.fetchall()
+
+            # Actualizar estados
+            #4 utilizado
+            #5 geenrado
+            
+            cursor_solicitud_compra.execute(updateSQLSolicitud, (4, pedido_solicitud[5],))
+            cursor_pedido_de_compra_proveedor.execute(updateSQLPedidosDeComprasProveedor, (8,pedido_solicitud[0],pedido_solicitud[1],) )
+            con.commit()
+            app.logger.info(f"Pedido N° {pedido_solicitud[7]} procesado")
+
             return {
                 'id_formulario_pedido_compras': pedido_solicitud[0]
                 ,'id_proveedor': pedido_solicitud[1]
@@ -62,11 +84,16 @@ class PedidoDeCompraDao:
                     ,'deposito':item[3]} for item in pedido_detalle]
             }
         except Exception as e:
+            con.rollback()
             app.logger.error(e)
         finally:
             cursor_solcitud.close()
             cursor_detalle.close()
-        return []
+            cursor_solicitud_compra.close()
+            cursor_pedido_de_compra_proveedor.close()
+            con.autocommit = True
+            con.close()
+        return None
     
     def getPedidosdeCompras(self):
         querySQL = """select b.id_formulario_pedido_compras,

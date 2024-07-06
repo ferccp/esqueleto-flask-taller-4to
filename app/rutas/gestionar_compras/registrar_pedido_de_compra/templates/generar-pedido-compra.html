@@ -1,42 +1,134 @@
-<!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <link href="invoice.css" media="print" rel="stylesheet">
-    <title>{{titulo}}</title>
-    <meta name="description" content="Invoice demo sample">
-    <meta name="author" content="Juan">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/invoice.css') }}"/>
-  </head>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pedido de Compras</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f7f7f7;
+        margin: 0;
+        padding: 0;
+      }
 
-  <body>
+      header {
+        background-color: #333;
+        color: #fff;
+        padding: 20px;
+        text-align: center;
+      }
 
-    <h1>Pedido N.º {{ nro_pedido }}</h1>
+      .container {
+        width: 80%;
+        margin: 30px auto;
+        padding: 20px;
+        background-color: #fff;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
 
-    <dl id="informations">
-      <dt>Plazo Entrega</dt>
-      <dd>{{ pedido['fecha_entrega_plazo_pedido'] }}</dd>
-      <dt>Estado</dt>
-      <dd>{{ pedido['estado_pedido'] }}</dd>
-    </dl>
+    h2 {
+        color: #333;
+    }
 
-    <table>
-      <thead>
-        <tr>
-            <th>Insumo</th>
-            <th>Unidad de medida</th>
-            <th>cantidad</th>
-            <th>Depósito</th>
-        </tr>
-    </thead>
-    <tbody>
-      {% for ped in pedido['detalle_pedido'] %}
-        <td>{{ ped['insumos'] }}</td>
-        <td>{{ ped['unidad_medida'] }}</td>
-        <td>{{ ped['cantidad'] }}</td>
-        <td>{{ ped['deposito'] }}</td>
-      {% endfor %}
-    </tbody>
-    </table>
-  </body>
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    label {
+        display: block;
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+
+    input[type="text"],
+    input[type="tel"],
+    input[type="email"],
+    input[type="number"] {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        box-sizing: border-box;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+    }
+
+    table th,
+    table td {
+        border: 1px solid #ddd;
+        padding: 10px;
+        text-align: left;
+    }
+
+    table th {
+        background-color: #f4f4f4;
+    }
+
+ 
+
+    #add-row {
+        background-color: #007bff;
+    }
+
+    #add-row:hover {
+        background-color: #0056b3;
+    }
+
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Pedido de Compras</h1>
+        <h3>Nro° {{ pedido['nro_solicitud_compra'] }} </h3>
+
+    </header>
+    <div class="container">
+        <section class="customer-info">
+            <h2>Información del Pedido</h2>
+      
+                <div class="form-group">
+                    <label for="nombre">Proveedor:</label>
+                    <input type="text" id="nombre" value="{{ pedido['ruc_iden'] }}" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="direccion">Fecha Entrega:</label>
+                    <input type="text" id="fecha_entrega" value="{{ pedido['fecha_entrega_plazo_pedido'] }}" readonly >
+                </div>
+        </section>
+
+        <section class="order-details">
+            <h2>Detalle de Insumos</h2>
+            <table>
+                <thead>
+                  <tr>
+                    <th>Insumo</th>
+                    <th>Unidad de medida</th>
+                    <th>cantidad</th>
+                    <th>Depósito</th>
+                </tr>
+                </thead>
+                <tbody id="order-items">
+                  {% for ped in pedido['detalle_pedido'] %}
+
+                    <tr>
+
+                        <td>{{ ped['insumos'] }}</td>
+                        <td>{{ ped['unidad_medida'] }} </td>
+                        <td>{{ ped['cantidad'] }}</td>
+                        <td>{{ ped['deposito'] }}</td>
+                    </tr>
+                    {% endfor %}
+
+                </tbody>
+            </table>
+        </section>
+     
+    </div>
+
+</body>
 </html>

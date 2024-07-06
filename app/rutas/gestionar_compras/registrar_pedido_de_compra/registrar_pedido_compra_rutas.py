@@ -1,3 +1,5 @@
+import os
+os.environ['PATH'] = r'C:\msys64\mingw64\bin;' + os.environ['PATH']
 from flask import Blueprint, render_template, request,redirect , url_for, jsonify, flash
 from flask import current_app as app
 from app.dao.referencial.estado.EstadoDao import EstadoDao
@@ -31,8 +33,7 @@ def index_listar_pedido_de_compra():
 		lista = pedidoDao.getPedidosdeCompras()
 		if len(lista) < 0:
 			flash('No hay solicitudes registradas', 'warning')
-		return render_template('index-listar-pedido-de-compra.html', lista_pedidos = lista, lista_proveedores = proveedor_dao.getProveedores() ,
-						  url_ver_pedido = url_ver_pedido)
+		return render_template('index-listar-pedido-de-compra.html', lista_pedidos = lista, lista_proveedores = proveedor_dao.getProveedores() ,url_ver_pedido = url_ver_pedido)
 
 @rpcmod.route('/formulario-registrar-pedido-compras')
 def formulario_registrar_solicitud_compras():
@@ -89,6 +90,13 @@ def generar_pedido_compra_por_proveedor():
 	html = render_template('generar-pedido-compra.html',nro_pedido = nro_pedido ,pedido = lista_pedido_compra )
 	return render_pdf(HTML(string=html))
 
+""" 
+@rpcmod.route('/generar-pedido-compra-por-proveedor-view', methods=['POST'])
+def generar_pedido_compra_por_proveedor_view():
+	nro_pedido=request.form['nro_pedido']
+	lista_pedido_compra = pedidoDao.getPedidosDeCompraByNroPedido(nro_pedido)
+	return render_template('generar-pedido-compra.html',nro_pedido = nro_pedido ,pedido = lista_pedido_compra )
+ """
 
 
 @rpcmod.route('/v1/get-funcionario-by-id/<id>')
