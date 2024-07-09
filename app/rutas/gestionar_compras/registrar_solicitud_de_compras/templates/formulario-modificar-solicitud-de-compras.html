@@ -20,11 +20,12 @@
                 <label>Estado solicitud</label>
             </div>
             <div class="col col-xs-12 col-md-3 col-lg-3 col-xl-3">
-              <select class="form-control" name="selestado">
+              <select class="form-control" name="selestado" >
                 <option value=""></option>
                 {% if estados|length > 0 %}
+
                   {% for item in estados %}
-                      {% if solicitud['id_estado'] == item[0] %}
+                      {% if estados['id_estado'] == item[0] %}
                       <option value="{{ item['id'] }}" selected>{{ item['descripcion'] }}</option>
                         {% else %}
                         <option value="{{ item['id'] }}">{{ item['descripcion'] }}</option>

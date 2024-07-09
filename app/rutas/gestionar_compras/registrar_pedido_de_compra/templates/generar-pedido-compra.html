@@ -91,14 +91,14 @@
         <section class="customer-info">
             <h2>Información del Pedido</h2>
       
-                <div class="form-group">
-                    <label for="nombre">Proveedor:</label>
-                    <input type="text" id="nombre" value="{{ pedido['ruc_iden'] }}" readonly>
-                </div>
-                <div class="form-group">
-                    <label for="direccion">Fecha Entrega:</label>
-                    <input type="text" id="fecha_entrega" value="{{ pedido['fecha_entrega_plazo_pedido'] }}" readonly >
-                </div>
+            <div class="form-group">
+                <label for="nombre">Proveedor:</label>
+                <label id="nombre">{{ pedido['ruc_iden'] }}</label>
+            </div>
+            <div class="form-group">
+                <label for="direccion">Fecha Entrega:</label>
+                <label id="fecha_entrega">{{ pedido['fecha_entrega_plazo_pedido'] }}</label>
+            </div>
         </section>
 
         <section class="order-details">
